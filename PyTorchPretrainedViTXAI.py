@@ -83,9 +83,9 @@ def RunTimmCamExplainabilityOnDataset(timmModel, datasetPath, splitName, outputD
 
 # Define the main execution block.
 if (__name__ == "__main__"):
-  datasetPath = r"D:\Recent Projects\Kenzie - Brain Tumor Project\Dataset\SplitDataset-MRI"
-  modelCheckpointPath = r"D:\Recent Projects\Kenzie - Brain Tumor Project\Experiments-MRI\Exp-SwinV2-AdamW-32-LabelSmoothing\BestModel.pt"
-  outputDir = Path("./ExplainabilityResults")
+  datasetPath = r"/path/to/your/dataset"  # Update this path to your dataset location.
+  modelCheckpointPath = r"/path/to/your/modelCheckpoint.pth"  # Update this path to your model checkpoint.
+  outputDir = Path(r"/path/to/output/directory")  # Update this path to your desired output directory.
 
   modelName = "SwinTransformerV2"
   numClasses = 2

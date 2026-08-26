@@ -6,10 +6,10 @@
 
 # --- Data and Output Paths ---
 # Path to the root directory of your dataset.
-DataDir: "C:/Users/Hossam/Downloads/Priest Griffin Project/dataBinary"
+DataDir: "/path/to/your/dataset"
 
 # Directory where results, models, and logs will be saved.
-OutputDir: "C:/Users/Hossam/Downloads/Priest Griffin Project/Experiments-Bin/Exp-XXX"
+OutputDir: "/path/to/your/Experiments/Exp-XXX"
 
 # Pass a list to run multiple models. The script will loop through all combinations.
 # Available Options: "StandardViT", "T2TViT", "HierarchicalViT", "CLIPViT",
