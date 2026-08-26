@@ -5,7 +5,15 @@ from PyTorchPretrainedViTPipeline import BuildViTModel, fprint
 
 
 # Define the function to run PyTorch CAM explainability on a dataset split using a timm model.
-def RunTimmCamExplainabilityOnDataset(timmModel, datasetPath, splitName, outputDirectory, classNames, imageSize=224):
+def RunTimmCamExplainabilityOnDataset(
+  timmModel,
+  datasetPath,
+  splitName,
+  outputDirectory,
+  classNames,
+  imageSize=224,
+  maxImagesPerClass=25,
+):
   # Define the list of available CAM techniques from the HMB package.
   availableCamMethods = [
     "gradcam",
@@ -35,9 +43,6 @@ def RunTimmCamExplainabilityOnDataset(timmModel, datasetPath, splitName, outputD
     classIdx: list((splitPath / className).rglob("*"))
     for classIdx, className in classNames.items()
   }
-
-  # Limit the number of images to process for explainability to a maximum of N per class.
-  maxImagesPerClass = 25
 
   # Create a list to hold the selected image files for explainability.
   imageFiles = []
@@ -91,6 +96,14 @@ if (__name__ == "__main__"):
   numClasses = 2
   device = "cuda" if (torch.cuda.is_available()) else "cpu"
   effectiveImageSize = 256
+  maxImagesPerClass = 25
+
+  # Define the class names mapping for the annotations using integer keys and CamelCase values.
+  classNamesMapping = {
+    0: "Healthy",
+    1: "Tumor",
+  }
+  fprint(f"Class names mapping: {classNamesMapping}.")
 
   # Build the ViT model with the specified image size.
   # secondaryModel is used for models like CLIP that require a separate visual encoder.
@@ -108,13 +121,6 @@ if (__name__ == "__main__"):
     outputDir.mkdir(parents=True, exist_ok=True)
     fprint(f"Created output directory: {outputDir}.")
 
-  # Define the class names mapping for the annotations using integer keys and CamelCase values.
-  classNamesMapping = {
-    0: "Healthy",
-    1: "Tumor",
-  }
-  fprint(f"Class names mapping: {classNamesMapping}.")
-
   # Run the PyTorch CAM explainability pipeline on the dataset using the timm model.
   fprint("Running PyTorch CAM explainability pipeline...")
   RunTimmCamExplainabilityOnDataset(
@@ -124,4 +130,5 @@ if (__name__ == "__main__"):
     outputDirectory=outputDir / "TimmCam",
     classNames=classNamesMapping,
     imageSize=effectiveImageSize,
+    maxImagesPerClass=maxImagesPerClass,
   )
