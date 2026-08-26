@@ -80,6 +80,9 @@ pip install git+https://github.com/openai/CLIP.git
 
 # Install state-of-the-art optimizers for advanced Vision Transformer training.
 pip install lion-pytorch prodigyopt schedulefree
+
+# Install the HMB Helpers Package for Explainable AI (XAI) and advanced utility functions.
+pip install "hmb-helpers[cv,pytorch]"
 ```
 
 *(Note: For GPU acceleration, visit the [PyTorch installation page](https://pytorch.org/get-started/locally/) to obtain
@@ -344,8 +347,9 @@ All experiments completed.
 ## Explainability & XAI Features
 
 To ensure transparency and interpretability in medical and high-stakes image classification, the pipeline includes a
-dedicated Explainable AI (XAI) module. This module leverages Class Activation Mapping (CAM) techniques to visualize the
-regions of an image that most significantly influence the model's predictions.
+dedicated Explainable AI (XAI) module. This module leverages Class Activation Mapping (CAM) techniques from
+the [HMB Helpers Package](https://github.com/HossamBalaha/HMB-Helpers-Package) to visualize the regions of an image that
+most significantly influence the model's predictions.
 
 ### Supported CAM Techniques
 
@@ -358,13 +362,13 @@ The integrated `CAMExplainerPyTorch` helper supports a comprehensive suite of at
 
 ### XAI Execution Script
 
-To facilitate model interpretability, the repository includes a dedicated standalone script: *
-*`PyTorchPretrainedViTXAI.py`**.
+To facilitate model interpretability, the repository includes a dedicated standalone script:
+**`PyTorchPretrainedViTXAI.py`**.
 
 **Description:**  
 This script automates the generation of Class Activation Mapping (CAM) visualizations for a trained model across a
-specified dataset split. It leverages the `CAMExplainerPyTorch` helper to iterate through multiple attribution methods
-and saves the resulting heatmaps in a structured output directory.
+specified dataset split. It leverages the `CAMExplainerPyTorch` helper from the `hmb-helpers` package to iterate through
+multiple attribution methods and saves the resulting heatmaps in a structured output directory.
 
 **How to Use:**
 

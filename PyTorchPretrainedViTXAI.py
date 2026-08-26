@@ -89,11 +89,11 @@ def RunTimmCamExplainabilityOnDataset(
 # Define the main execution block.
 if (__name__ == "__main__"):
   datasetPath = r"/path/to/your/dataset"  # Update this path to your dataset location.
+  splitName = "test"  # Specify the dataset split to use (e.g., "train", "val", "test").
   modelCheckpointPath = r"/path/to/your/modelCheckpoint.pth"  # Update this path to your model checkpoint.
-  outputDir = Path(r"/path/to/output/directory")  # Update this path to your desired output directory.
+  outputDir = Path(r"/path/to/output/directory/xai")  # Update this path to your desired output directory.
 
   modelName = "SwinTransformerV2"
-  numClasses = 2
   device = "cuda" if (torch.cuda.is_available()) else "cpu"
   effectiveImageSize = 256
   maxImagesPerClass = 25
@@ -103,6 +103,7 @@ if (__name__ == "__main__"):
     0: "Healthy",
     1: "Tumor",
   }
+  numClasses = len(classNamesMapping)
   fprint(f"Class names mapping: {classNamesMapping}.")
 
   # Build the ViT model with the specified image size.
@@ -126,8 +127,8 @@ if (__name__ == "__main__"):
   RunTimmCamExplainabilityOnDataset(
     timmModel=model,
     datasetPath=datasetPath,
-    splitName="test",
-    outputDirectory=outputDir / "TimmCam",
+    splitName=splitName,
+    outputDirectory=outputDir,
     classNames=classNamesMapping,
     imageSize=effectiveImageSize,
     maxImagesPerClass=maxImagesPerClass,
