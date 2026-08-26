@@ -1,0 +1,91 @@
+# ==============================================================================
+# VIT IMAGE CLASSIFICATION PIPELINE - CONFIGURATION FILE.
+# ==============================================================================
+# Update the values below according to your dataset and training requirements.
+# This configuration file contains parameters for the various ViT implementations.
+
+# --- Data and Output Paths ---
+# Path to the root directory of your dataset.
+DataDir: "C:/Users/Hossam/Downloads/Priest Griffin Project/dataBinary"
+
+# Directory where results, models, and logs will be saved.
+OutputDir: "C:/Users/Hossam/Downloads/Priest Griffin Project/Experiments-Bin/Exp-XXX"
+
+# Pass a list to run multiple models. The script will loop through all combinations.
+# Available Options: "StandardViT", "T2TViT", "HierarchicalViT", "CLIPViT",
+# "SwinTransformer", "SwinTransformerV2", "DeiT", "ConvNeXt", "ConvNeXtV2", "MaxViT", "BEiT", "FastViT", "EVA02".
+ModelName:
+  - "EVA02"
+
+# Pass a list to run multiple optimizers.
+# Available Options: "Adam", "AdamW", "SGD", "RMSprop", "RAdam", "Lion", "Prodigy", "ScheduleFreeAdamW", "Sophia".
+Optimizer:
+  - "AdamW"
+
+# Pass a list to run multiple loss functions.
+# Available Options: "CrossEntropy", "Focal", "LabelSmoothing".
+LossFunction:
+  - "Focal"
+  - "LabelSmoothing"
+  - "CrossEntropy"
+
+# Input image size (height and width) for resizing during preprocessing.
+# Note: 224 is highly recommended for CLIP, SwinTransformer, and the new SOTA models.
+ImageSize: 224
+
+# Number of samples per batch.
+BatchSize: 32
+
+# Initial learning rate for the optimizer.
+# Note: If using "Prodigy", this value is ignored as it auto-tunes the learning rate.
+# LR of 0.00001 is recommended for most tasks, but you may need to adjust it based on your dataset and model.
+# LR of 0.0001 is recommended for large datasets and models, while LR of 0.000001 is recommended for small datasets and models.
+LearningRate: 0.0001
+
+# Maximum number of training epochs.
+NumEpochs: 500
+
+# Apply data augmentation techniques during training (e.g., random flips, rotations, color jitter).
+UseAugmentation: true
+
+# Computation device preference ("auto", "cpu", or "cuda").
+Device: "cuda"
+
+# Number of epochs with no improvement after which training will be stopped (Early Stopping).
+Patience: 25
+
+# Enable Automatic Mixed Precision (AMP) for faster training and lower memory usage.
+UseAmp: true
+
+# Number of steps to accumulate gradients before updating weights (simulates larger batch size).
+# Used when `UseAmp` is enabled. A value of 1 means no accumulation.
+# Value of 2 or more is recommended for large models or limited GPU memory.
+# Value of 1 is recommended for small models or when using large batch sizes.
+AccumulationSteps: 1
+
+# Enable Exponential Moving Average (EMA) for smoother weights and better generalization.
+UseEma: true
+
+# Enable MixUp and CutMix data augmentation.
+UseMixup: true
+
+# MixUp alpha parameter (higher means more mixing).
+# Used when `UseMixup` is enabled. A value of 0.2 is recommended for most tasks.
+MixupAlpha: 0.2
+
+# CutMix alpha parameter.
+# Used when `UseMixup` is enabled. A value of 1.0 is recommended for most tasks.
+CutmixAlpha: 1.0
+
+# Label smoothing value (0.0 to 1.0).
+# Used when LossFunction is set to "LabelSmoothing". A value of 0.1 is recommended for most tasks.
+# Also used when `UseMixup` is enabled, as MixUp implicitly applies label smoothing.
+LabelSmoothing: 0.1
+
+# Learning rate scheduler ("None", "CosineWarmup").
+Scheduler: "None"
+
+# Specific options for digital pathology datasets (e.g., TCGA, CAMELYON16, etc.).
+UseStainJitter: false
+UseBackgroundRemoval: false
+UseColorDeconvolution: false
