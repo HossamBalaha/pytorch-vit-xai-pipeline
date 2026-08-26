@@ -470,7 +470,7 @@ repository.
 
 For commercial licensing inquiries, please contact the author.
 
---
+---
 
 ## 📬 Contact
 
