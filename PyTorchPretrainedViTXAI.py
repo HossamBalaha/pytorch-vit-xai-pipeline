@@ -29,6 +29,11 @@ def RunTimmCamExplainabilityOnDataset(
     "occlusion",
     "gradxinput",
     "smoothgradcampp",
+    "rise",
+    "featureablation",
+    "vitgradcam",
+    "vitxgradcam",
+    "viteigencam",
   ]
 
   # Convert the dataset path to a Path object.

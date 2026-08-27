@@ -360,15 +360,22 @@ The integrated `CAMExplainerPyTorch` helper supports a comprehensive suite of at
 - **Activation-based:** Score-CAM, Eigen-CAM.
 - **Other:** Saliency, SmoothGrad, Integrated Gradients.
 
-### XAI Execution Script
+### XAI Execution Scripts
 
-To facilitate model interpretability, the repository includes a dedicated standalone script:
-**`PyTorchPretrainedViTXAI.py`**.
+To facilitate model interpretability, the repository includes two dedicated standalone scripts for generating
+Explainable AI visualizations.
+
+#### 1. `PyTorchPretrainedViTXAI.py` (Batch Processing by Method)
 
 **Description:**  
 This script automates the generation of Class Activation Mapping (CAM) visualizations for a trained model across a
-specified dataset split. It leverages the `CAMExplainerPyTorch` helper from the `hmb-helpers` package to iterate through
-multiple attribution methods and saves the resulting heatmaps in a structured output directory.
+specified dataset split. It iterates through multiple attribution methods and saves the resulting heatmaps organized by
+technique (e.g., separate outputs for Grad-CAM, SmoothGrad, etc.) using the `hmb-helpers` package.
+
+**When to Use:**  
+Use this script when you need to process an entire dataset split efficiently and want the XAI outputs organized by
+technique. It is ideal for large-scale dataset analysis or when you need to extract raw masks and individual
+visualizations separated by method.
 
 **How to Use:**
 
@@ -384,8 +391,45 @@ multiple attribution methods and saves the resulting heatmaps in a structured ou
    ```bash
    python PyTorchPretrainedViTXAI.py
    ```
-4. The script will automatically load the model, sample up to 25 images per class from the specified split (e.g.,
-   `test`), and generate comprehensive CAM overlays for all supported methods.
+4. The script will automatically load the model, sample up to 25 images per class from the specified split, and generate
+   comprehensive CAM overlays for all supported methods.
+
+#### 2. `AdvancedXAIOnDataset.py` (Side-by-Side Visual Comparison)
+
+**Description:**  
+This script generates a **single, combined side-by-side figure** for each image, displaying the original image alongside
+the XAI masks from all selected methods in a single grid row.
+
+**When to Use:**  
+Use this script when you need to visually compare how different XAI methods highlight the exact same image. It is highly
+recommended for generating publication-ready figures, presentation slides, or detailed case studies where direct
+method-to-method comparison is required.
+
+**How to Use:**
+
+1. Ensure you have a trained model checkpoint and a properly organized dataset.
+2. Open `AdvancedXAIOnDataset.py` and update the following variables in the `if __name__ == "__main__":` block:
+    - `datasetPath`: The absolute path to your dataset directory.
+    - `modelCheckpointPath`: The absolute path to your trained `.pt` model weights.
+    - `outputDir`: The desired directory for saving the combined XAI figures.
+    - `modelName`, `numClasses`, and `effectiveImageSize`: The architecture details.
+    - `classNamesMapping`: A dictionary mapping integer class indices to their respective CamelCase string names.
+    - `methods`: A list of specific XAI methods you want to include in the side-by-side comparison (e.g.,
+      `["integratedgradients", "smoothgrad", "vitgradcam"]`).
+3. Execute the script from your terminal:
+   ```bash
+   python AdvancedXAIOnDataset.py
+   ```
+4. The script will automatically load the model, sample images per class, and save high-resolution `.png` and `.pdf`
+   figures containing the original image and all selected XAI overlays side-by-side.
+
+### Key Differences Summary
+
+| Feature           | `PyTorchPretrainedViTXAI.py`                            | `AdvancedXAIOnDataset.py`                                       |
+|:------------------|:--------------------------------------------------------|:----------------------------------------------------------------|
+| **Output Format** | Individual files or folders per XAI technique.          | Single combined grid figure (Original + all methods) per image. |
+| **Best For**      | Large-scale batch processing and dataset-wide analysis. | Direct visual comparison, publications, and presentations.      |
+| **Customization** | Processes all available methods in the helper package.  | Allows selecting a specific subset of methods for the grid.     |
 
 ## Appendix: Inference Example
 
