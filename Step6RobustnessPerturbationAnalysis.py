@@ -124,13 +124,6 @@ if (__name__ == "__main__"):
   # Define the output directory.
   outputDirectory = "./Experiments/Robustness"
 
-  # Override the dataset directory with the specific project path.
-  datasetDirectory = r"D:\Recent Projects\Intern Projects\Gastric Project\CRC-VAL-HE-7K\SplitDataset"
-  # Override the model checkpoint path.
-  modelCheckpointPath = r"D:\Recent Projects\Intern Projects\Gastric Project\CRC-VAL-HE-7K\Experiments-CRC-VAL-HE-7K_Output\Exp-EVA02-AdamW-16-CrossEntropy\Seed-42\BestModel.pt"
-  # Override the output directory.
-  outputDirectory = r"D:\Recent Projects\Intern Projects\Gastric Project\CRC-VAL-HE-7K\Experiments-CRC-VAL-HE-7K_Output\Exp-EVA02-AdamW-16-CrossEntropy\Seed-42\Robustness"
-
   # Define the model name.
   modelName = "EVA02"
   # Determine the device to use.

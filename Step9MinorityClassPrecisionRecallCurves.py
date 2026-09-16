@@ -2,8 +2,9 @@ import os
 import ast
 import numpy
 import pandas
-import matplotlib.pyplot as plt
+from typing import Dict
 from pathlib import Path
+import matplotlib.pyplot as plt
 from sklearn.metrics import precision_recall_curve, average_precision_score
 from HMB.Utils import fprint
 
@@ -123,20 +124,15 @@ def PlotPrecisionRecallCurves(actualLabels, predictedProbs, classNames, outputDi
 # Define the main execution block.
 if (__name__ == "__main__"):
   # Define the path to the detailed predictions CSV file.
-  csvPath = r"D:\Recent Projects\Intern Projects\Gastric Project\CRC-VAL-HE-7K\Experiments-CRC-VAL-HE-7K_Output\Exp-EVA02-AdamW-16-CrossEntropy\Seed-42\Test\TestDetailedPredictions.csv"
+  # Update this path to your actual CSV file.
+  csvPath = r"/path/to/detailed/predictions.csv"
   # Define the output directory for the PRC plots.
-  outputDirectory = r"D:\Recent Projects\Intern Projects\Gastric Project\CRC-VAL-HE-7K\Experiments-CRC-VAL-HE-7K_Output\Exp-EVA02-AdamW-16-CrossEntropy\Seed-42\PRC_Analysis"
+  outputDirectory = r"./Experiments/PRC_Analysis"
   # Define the class names mapping.
-  classNamesMapping = {
-    0: "ADI",
-    1: "BACK",
-    2: "DEB",
-    3: "LYM",
-    4: "MUC",
-    5: "MUS",
-    6: "NORM",
-    7: "STR",
-    8: "TUM",
+  classNamesMapping: Dict[int, str] = {
+    0: "Grade_1",
+    1: "Grade_2",
+    2: "Grade_3",
   }
   # Print the starting message.
   fprint("Starting Precision-Recall Curve analysis.")

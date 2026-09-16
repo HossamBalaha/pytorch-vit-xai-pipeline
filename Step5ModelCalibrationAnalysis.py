@@ -79,12 +79,6 @@ if (__name__ == "__main__"):
   # Define the model name.
   modelName = "EVA02"
 
-  # Override the dataset directory with the specific project path.
-  # Update this path to your dataset location.
-  datasetDirectory = r"D:\Recent Projects\Intern Projects\Gastric Project\CRC-VAL-HE-7K\CRC-VAL-HE-7K_Output"
-  # Override the model checkpoint path.
-  modelCheckpointPath = r"D:\Recent Projects\Intern Projects\Gastric Project\CRC-VAL-HE-7K\Experiments-CRC-VAL-HE-7K_Output\Exp-EVA02-AdamW-16-CrossEntropy\Seed-42\BestModel.pt"  # Update this path to your model checkpoint.
-
   # Determine the device to use.
   device = "cuda" if torch.cuda.is_available() else "cpu"
   # Define the image size.

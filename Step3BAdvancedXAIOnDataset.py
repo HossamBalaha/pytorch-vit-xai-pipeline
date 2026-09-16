@@ -223,36 +223,6 @@ if __name__ == "__main__":
     2: "Grade_3",
   }
 
-  # datasetPath = r"D:\Recent Projects\Intern Projects\Gastric Project\GasHisSDB\160\Data"  # Update this path to your dataset location.
-  # splitName = "test"  # Specify the dataset split to use (e.g., "train", "val", "test").
-  # modelCheckpointPath = r"D:\Recent Projects\Intern Projects\Gastric Project\GasHisSDB\Experiments-160\Exp-EVA02-AdamW-16-CrossEntropy\Seed-42\BestModel.pt"  # Update this path to your model checkpoint.
-  # outputDir = Path(
-  #   r"D:\Recent Projects\Intern Projects\Gastric Project\GasHisSDB\Experiments-160\Exp-EVA02-AdamW-16-CrossEntropy\Seed-42\xai")  # Update this path to your desired output directory.
-  # # Define the class names mapping.
-  # classNamesMapping: Dict[int, str] = {
-  #   0: "Normal",
-  #   1: "Abnormal",
-  # }
-
-  datasetPath = r"D:\Recent Projects\Intern Projects\Gastric Project\CRC-VAL-HE-7K\SplitDataset"  # Update this path to your dataset location.
-  splitName = "test"  # Specify the dataset split to use (e.g., "train", "val", "test").
-  modelCheckpointPath = r"D:\Recent Projects\Intern Projects\Gastric Project\CRC-VAL-HE-7K\Experiments-CRC-VAL-HE-7K_Output\Exp-EVA02-AdamW-16-CrossEntropy\Seed-42\BestModel.pt"  # Update this path to your model checkpoint.
-  outputDir = Path(
-    r"D:\Recent Projects\Intern Projects\Gastric Project\CRC-VAL-HE-7K\Experiments-CRC-VAL-HE-7K_Output\Exp-EVA02-AdamW-16-CrossEntropy\Seed-42\xai"
-  )  # Update this path to your desired output directory.
-  # Define the class names mapping.
-  classNamesMapping: Dict[int, str] = {
-    0: "ADI",
-    1: "BACK",
-    2: "DEB",
-    3: "LYM",
-    4: "MUC",
-    5: "MUS",
-    6: "NORM",
-    7: "STR",
-    8: "TUM",
-  }
-
   # Define the model name.
   modelName = "EVA02"
 
