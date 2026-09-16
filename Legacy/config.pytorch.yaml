@@ -6,10 +6,10 @@
 
 # --- Data and Output Paths ---
 # Path to the root directory of your dataset.
-DataDir: "D:/Recent Projects/Image Classification Pipeline for Students/Dataset/Garbage Classification/SplitDataset"
+DataDir: "/path/to/your/dataset"
 
 # Directory where results, models, and logs will be saved.
-OutputDir: "D:/Recent Projects/Image Classification Pipeline for Students/Experiments/Exp-XXX"
+OutputDir: "/path/to/your/Experiments/Exp-XXX"
 
 # Pass a list to run multiple models. The script will loop through all combinations.
 # Available Options: "StandardViT", "T2TViT", "HierarchicalViT", "CLIPViT",
@@ -26,6 +26,8 @@ Optimizer:
 # Pass a list to run multiple loss functions.
 # Available Options: "CrossEntropy", "Focal", "LabelSmoothing".
 LossFunction:
+  - "Focal"
+  - "LabelSmoothing"
   - "CrossEntropy"
 
 # Input image size (height and width) for resizing during preprocessing.
@@ -33,7 +35,7 @@ LossFunction:
 ImageSize: 224
 
 # Number of samples per batch.
-BatchSize: 16
+BatchSize: 32
 
 # Initial learning rate for the optimizer.
 # Note: If using "Prodigy", this value is ignored as it auto-tunes the learning rate.
@@ -42,7 +44,7 @@ BatchSize: 16
 LearningRate: 0.0001
 
 # Maximum number of training epochs.
-NumEpochs: 100
+NumEpochs: 500
 
 # Apply data augmentation techniques during training (e.g., random flips, rotations, color jitter).
 UseAugmentation: true
@@ -91,22 +93,3 @@ UseColorDeconvolution: false
 
 # Pass a list of random seeds for multi-trial execution to ensure statistical significance.
 Seeds: [ 42, 43, 44, 45, 46 ]
-
-
-# --- Topological Wasserstein Loss Hyperparameters ---
-# Enable the Topological Wasserstein Loss for single-resolution histopathology.
-# Set to "false" to revert to standard classification training.
-UseTopoWassersteinLoss: true
-
-# Entropic regularization parameter for the Sinkhorn' algorithm.
-# Lower values (e.g., 0.01) enforce stricter optimal transport but may cause numerical instability.
-# Higher values (e.g., 0.5) smooth the transport plan but weaken the geometric alignment.
-Epsilon: 0.1
-
-# Weighting factor for the topological spatial penalty.
-# Controls the strength of the persistent homology-inspired spatial distribution constraint.
-LambdaTopo: 0.1
-
-# Weighting factor for the contrastive Wasserstein loss against class prototypes.
-# Controls the strength of the distributional alignment in the feature space.
-LambdaContrastive: 0.1

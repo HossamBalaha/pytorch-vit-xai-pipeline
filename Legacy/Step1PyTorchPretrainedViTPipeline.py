@@ -34,6 +34,22 @@ from timm.loss import LabelSmoothingCrossEntropy, SoftTargetCrossEntropy, Binary
 torch.backends.cudnn.benchmark = True
 
 
+# Define the function to set the global random seed for reproducibility.
+def SetGlobalSeed(seedValue):
+  # Import the random module for Python standard library seeding.
+  import random
+  # Set the seed for the Python random module.
+  random.seed(seedValue)
+  # Set the seed for the numpy random number generator.
+  numpy.random.seed(seedValue)
+  # Set the seed for the PyTorch CPU random number generator.
+  torch.manual_seed(seedValue)
+  # Check if CUDA is available for GPU computations.
+  if (torch.cuda.is_available()):
+    # Set the seed for all current CUDA devices.
+    torch.cuda.manual_seed_all(seedValue)
+
+
 # Define helper function for Color Deconvolution (H&E separation).
 def ColorDeconvolution(imgArray):
   """
@@ -1132,48 +1148,56 @@ def BuildViTModel(
     model = T2TViT(numClasses=numClasses)
     # Return the model and None for the secondary model.
     return model, None
+
   # Check if the model is HierarchicalViT.
   elif (modelName == "HierarchicalViT"):
     # Initialize the Hierarchical Vision Transformer.
     model = HierarchicalViT(numClasses=numClasses)
     # Return the model and None for the secondary model.
     return model, None
+
   # Check if the model is StandardViT.
   elif (modelName == "StandardViT"):
     # Initialize the Standard Vision Transformer with the correct image size.
     model = StandardViT(imgSize=imageSize, numClasses=numClasses)
     # Return the model and None for the secondary model.
     return model, None
+
   # Check if the model is CLIPViT.
   elif (modelName == "CLIPViT"):
     # Build the CLIP model and classifier.
     modelClip, classifier = BuildCLIPModel(numClasses, device)
     # Return the classifier and the CLIP model.
     return classifier, modelClip
+
   # Check if the model is SwinTransformerV2.
   elif (modelName == "SwinTransformerV2"):
     # SwinV2 requires 256x256 input. Override imageSize for this model.
     model = BuildTimmModel("timm/swinv2_base_window12to16_192to256_22kft1k", numClasses)
     # Return the model and None for the secondary model.
     return model, None
+
   # Check if the model is SwinTransformer.
   elif (modelName == "SwinTransformer"):
     # Build the Swin Transformer V1 model.
     model = BuildTimmModel("timm/swin_base_patch4_window7_224.ms_in22k_ft_in1k", numClasses)
     # Return the model and None for the secondary model.
     return model, None
+
   # Check if the model is DeiT.
   elif (modelName == "DeiT"):
     # Build the Data-efficient Image Transformer model using timm.
     model = BuildTimmModel("timm/deit_base_patch16_224.fb_in1k", numClasses)
     # Return the model and None for the secondary model.
     return model, None
+
   # Check if the model is ConvNeXtV2.
   elif (modelName == "ConvNeXtV2"):
     # Build the ConvNeXt V2 model with improved stability and performance.
     model = BuildTimmModel("timm/convnextv2_base.fcmae_ft_in22k_in1k", numClasses)
     # Return the model and None for the secondary model.
     return model, None
+
   # Check if the model is ConvNeXt.
   elif (modelName == "ConvNeXt"):
     # Build the ConvNeXt V1 hybrid CNN-Transformer model using timm.
@@ -1203,6 +1227,30 @@ def BuildViTModel(
     # Build the EVA-02 model using timm.
     model = BuildTimmModel("timm/eva02_base_patch14_224.mim_in22k", numClasses)
     # Return the model and None for the secondary model.
+    return model, None
+  # Check if the model is EVA02 Large (High Resolution)
+  elif (modelName == "EVA02Large"):
+    # Build the EVA-02 Large model pre-trained with MIM at 448x448 resolution.
+    model = BuildTimmModel("timm/eva02_large_patch14_448.mim_m38m_ft_in22k_in1k", numClasses)
+    # Note: You must set effectiveImageSize = 448 in CreateFitViTModel for this.
+    return model, None
+
+  # Check if the model is ConvNeXt Large CLIP
+  elif (modelName == "ConvNeXtLargeCLIP"):
+    # Build the ConvNeXt Large model with robust CLIP (LAION-2B) pre-training.
+    model = BuildTimmModel("timm/convnext_large_mlp.clip_laion2b_augreg_ft_in1k", numClasses)
+    return model, None
+
+  # Check if the model is SwinTransformer Large 384
+  elif (modelName == "SwinTransformerLarge384"):
+    # Build the Swin Large model optimized for 384x384 high-resolution input.
+    model = BuildTimmModel("timm/swin_large_patch4_window12_384.ms_in22k_ft_in1k", numClasses)
+    return model, None
+
+  # Check if the model is EfficientNetV2 Large
+  elif (modelName == "EfficientNetV2Large"):
+    # Build the EfficientNetV2 Large model for highly efficient, robust feature extraction.
+    model = BuildTimmModel("timm/efficientnetv2_rw_t.ra2_in1k", numClasses)
     return model, None
   else:
     # Raise an error for unsupported models.
@@ -1573,6 +1621,10 @@ def CreateFitViTModel(
   effectiveImageSize = imageSize
   if (modelName == "SwinTransformerV2"):
     effectiveImageSize = 256
+  elif (modelName == "SwinTransformerLarge384"):
+    effectiveImageSize = 384
+  elif (modelName == "EVA02Large"):
+    effectiveImageSize = 448
 
   # Build the ViT model with the specified image size.
   # secondaryModel is used for models like CLIP that require a separate visual encoder.
@@ -2617,120 +2669,151 @@ def RunCompletePipeline(
 
 # Define the main execution block.
 if (__name__ == "__main__"):
+  # Check if CUDA is available and set the device accordingly.
   if (torch.cuda.is_available()):
-    # Check if CUDA is available and set the device accordingly.
+    # Set the device to CUDA.
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # Print the device being used.
     fprint(f"Using device: {device}")
+    # Calculate and print the GPU memory.
     gpuMemory = torch.cuda.get_device_properties(0).total_memory / (1024 ** 3) if torch.cuda.is_available() else 0
+    # Print the GPU memory value.
     fprint(f"GPU Memory: {gpuMemory:.2f} GB")
   else:
-    # If CUDA is not available, set the device to CPU.
+    # Set the device to CPU if CUDA is not available.
     device = torch.device("cpu")
+    # Print the device being used.
     fprint(f"Using device: {device}")
-
   # Import the argparse module for command-line interface.
   import argparse
 
   # Initialize the argument parser for command-line interface.
-  parser = argparse.ArgumentParser(
-    description="ViT Image Classification"
-  )
+  parser = argparse.ArgumentParser(description="ViT Image Classification")
   # Add the command-line argument for the configuration file.
-  parser.add_argument(
-    "--config",
-    type=str,
-    default="config.pytorch.yaml",
-    help="Path to the YAML or JSON configuration file",
-  )
+  parser.add_argument("--config", type=str, default="config.pytorch.yaml",
+                      help="Path to the YAML or JSON configuration file")
   # Parse the command-line arguments into a namespace object.
   args = parser.parse_args()
   # Load the configuration from the file.
   config = LoadConfig(args.config)
-
   # Extract base parameters for the experiment grid.
   baseOutputDir = str(Path(config.get("OutputDir", "Results")).parent)
+  # Extract the batch size from the configuration.
   batchSize = config.get("BatchSize", 16)
-
   # Extract lists or single values for the experiment grid.
   modelNames = config.get("ModelName", "StandardViT")
+  # Extract the list of seeds for multi-trial execution.
+  seeds = config.get("Seeds", [42])
+  # Extract the optimizers from the configuration.
   optimizers = config.get("Optimizer", "Adam")
+  # Extract the loss functions from the configuration.
   lossFunctions = config.get("LossFunction", "CrossEntropy")
-
-  # Ensure they are lists for iteration.
+  # Ensure the model names variable is a list for iteration.
   if (isinstance(modelNames, str)):
+    # Convert a single string to a list.
     modelNames = [modelNames]
+  # Ensure the optimizers variable is a list for iteration.
   if (isinstance(optimizers, str)):
+    # Convert a single string to a list.
     optimizers = [optimizers]
+  # Ensure the loss functions variable is a list for iteration.
   if (isinstance(lossFunctions, str)):
+    # Convert a single string to a list.
     lossFunctions = [lossFunctions]
-
-  # Loop through all combinations of models, optimizers, and loss functions.
+  # Ensure the seeds variable is a list for iteration.
+  if (isinstance(seeds, int)):
+    # Convert a single integer seed to a list.
+    seeds = [seeds]
+  # Loop through all combinations of models, optimizers, loss functions, and seeds.
   for modelName in modelNames:
+    # Iterate over each optimizer in the configured list.
     for optimizerName in optimizers:
+      # Iterate over each loss function in the configured list.
       for lossFunction in lossFunctions:
-        # Clear the CUDA cache to free up memory before starting a new experiment.
-        if (torch.cuda.is_available()):
-          torch.cuda.empty_cache()
+        # Iterate over each seed for the multi-trial execution.
+        for seed in seeds:
+          # Set the global seed for complete reproducibility.
+          SetGlobalSeed(seed)
+          # Clear the CUDA cache to free up memory before starting a new experiment.
+          if (torch.cuda.is_available()):
+            # Empty the CUDA cache.
+            torch.cuda.empty_cache()
+          # Generate a clean model name for the folder path.
+          folderModelName = modelName.replace("Transformer", "").replace("ViT", "")
+          # Check if the folder model name is Standard.
+          if (folderModelName == "Standard"):
+            # Set the folder model name to ViT.
+            folderModelName = "ViT"
+          # Construct dynamic output directory name including the seed.
+          experimentName = f"Exp-{folderModelName}-{optimizerName}-{batchSize}-{lossFunction}"
+          # Construct the current output directory path with the seed subfolder.
+          currentOutputDir = str(Path(baseOutputDir) / experimentName / f"Seed-{seed}")
+          # Print a separator line for the new experiment.
+          fprint(f"\n{'=' * 60}")
+          # Print the starting experiment message.
+          fprint(f"Starting Experiment: {experimentName} | Seed: {seed}")
+          # Print the output directory message.
+          fprint(f"Output Directory: {currentOutputDir}")
+          # Print a separator line.
+          fprint(f"{'=' * 60}\n")
+          # Start the try block for experiment execution.
+          try:
+            # Execute the complete pipeline with parsed configuration parameters.
+            RunCompletePipeline(
+              dataDir=config.get("DataDir", "./data"),
+              outputDir=currentOutputDir,
+              modelName=modelName,
+              numEpochs=config.get("NumEpochs", 50),
+              batchSize=batchSize,
+              imageSize=config.get("ImageSize", 224),
+              learningRate=config.get("LearningRate", 1e-4),
+              devicePref=config.get("Device", "auto"),
+              patience=config.get("Patience", 10),
+              optimizerName=optimizerName,
+              useAmp=config.get("UseAmp", False),
+              accumulationSteps=config.get("AccumulationSteps", 1),
+              useEma=config.get("UseEma", False),
+              useMixup=config.get("UseMixup", False),
+              mixupAlpha=config.get("MixupAlpha", 0.2),
+              cutmixAlpha=config.get("CutmixAlpha", 1.0),
+              lossFunction=lossFunction,
+              labelSmoothing=config.get("LabelSmoothing", 0.0),
+              schedulerName=config.get("Scheduler", "None"),
+              useAugmentation=config.get("UseAugmentation", False),
+              useStainJitter=config.get("UseStainJitter", False),
+              useBackgroundRemoval=config.get("UseBackgroundRemoval", False),
+              useColorDeconvolution=config.get("UseColorDeconvolution", False),
+            )
+            # Create a copy of the configuration for saving.
+            configCopy = config.copy()
+            # Update the output directory in the configuration copy.
+            configCopy["OutputDir"] = currentOutputDir
+            # Update the model name in the configuration copy.
+            configCopy["ModelName"] = modelName
+            # Update the optimizer in the configuration copy.
+            configCopy["Optimizer"] = optimizerName
+            # Update the loss function in the configuration copy.
+            configCopy["LossFunction"] = lossFunction
+            # Update the seed in the configuration copy.
+            configCopy["Seed"] = seed
+            # Open the configuration file for writing.
+            with open(Path(currentOutputDir) / "ConfigUsed.yaml", "w") as f:
+              # Dump the configuration copy to the YAML file.
+              yaml.dump(configCopy, f)
+          # Catch any exceptions during the experiment execution.
+          except Exception as e:
+            # Print the error message.
+            fprint(f"ERROR in experiment {experimentName} with seed {seed}: {e}")
+            # Import the traceback module for detailed error printing.
+            import traceback
 
-        # Generate a clean model name for the folder path (e.g., "SwinTransformer" -> "Swin").
-        folderModelName = modelName.replace("Transformer", "").replace("ViT", "")
-        if (folderModelName == "Standard"):
-          folderModelName = "ViT"
-
-        # Construct dynamic output directory name.
-        experimentName = f"Exp-{folderModelName}-{optimizerName}-{batchSize}-{lossFunction}"
-        currentOutputDir = str(Path(baseOutputDir) / experimentName)
-
-        fprint(f"\n{'=' * 60}")
-        fprint(f"Starting Experiment: {experimentName}")
-        fprint(f"Output Directory: {currentOutputDir}")
-        fprint(f"{'=' * 60}\n")
-
-        try:
-          # Execute the complete pipeline with parsed configuration parameters.
-          RunCompletePipeline(
-            dataDir=config.get("DataDir", "./data"),
-            outputDir=currentOutputDir,
-            modelName=modelName,
-            numEpochs=config.get("NumEpochs", 50),
-            batchSize=batchSize,
-            imageSize=config.get("ImageSize", 224),
-            learningRate=config.get("LearningRate", 1e-4),
-            devicePref=config.get("Device", "auto"),
-            patience=config.get("Patience", 10),
-            optimizerName=optimizerName,
-            useAmp=config.get("UseAmp", False),
-            accumulationSteps=config.get("AccumulationSteps", 1),
-            useEma=config.get("UseEma", False),
-            useMixup=config.get("UseMixup", False),
-            mixupAlpha=config.get("MixupAlpha", 0.2),
-            cutmixAlpha=config.get("CutmixAlpha", 1.0),
-            lossFunction=lossFunction,
-            labelSmoothing=config.get("LabelSmoothing", 0.0),
-            schedulerName=config.get("Scheduler", "None"),
-            useAugmentation=config.get("UseAugmentation", False),
-            useStainJitter=config.get("UseStainJitter", False),
-            useBackgroundRemoval=config.get("UseBackgroundRemoval", False),
-            useColorDeconvolution=config.get("UseColorDeconvolution", False),
-          )
-
-          # Save a copy of the configuration used for this run to the output directory for reproducibility.
-          configCopy = config.copy()
-          configCopy["OutputDir"] = currentOutputDir
-          configCopy["ModelName"] = modelName
-          configCopy["Optimizer"] = optimizerName
-          configCopy["LossFunction"] = lossFunction
-          with open(Path(currentOutputDir) / "ConfigUsed.yaml", "w") as f:
-            yaml.dump(configCopy, f)
-
-        except Exception as e:
-          fprint(f"ERROR in experiment {experimentName}: {e}")
-          import traceback
-
-          traceback.print_exc()
-          fprint("Continuing to the next experiment...")
-          continue
-
+            # Print the detailed traceback.
+            traceback.print_exc()
+            # Print a message indicating continuation.
+            fprint("Continuing to the next experiment...")
+            # Continue to the next iteration.
+            continue
   # Print a separator line for the final metrics.
   fprint("\n" + "=" * 60)
+  # Print the completion message.
   fprint("All experiments completed.")

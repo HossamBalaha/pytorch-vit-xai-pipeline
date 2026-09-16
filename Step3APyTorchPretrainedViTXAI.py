@@ -1,7 +1,9 @@
 import torch
 from pathlib import Path
+from HMB.Utils import fprint
+from HMB.Initializations import IMAGE_SUFFIXES
 from HMB.ExplainabilityHelper import CAMExplainerPyTorch
-from PyTorchPretrainedViTPipeline import BuildViTModel, fprint
+from Step1PyTorchPretrainedViTPipeline import BuildViTModel
 
 
 # Define the function to run PyTorch CAM explainability on a dataset split using a timm model.
@@ -53,7 +55,7 @@ def RunTimmCamExplainabilityOnDataset(
   imageFiles = []
   for classIdx, fileList in files.items():
     # Filter the file list to include only valid image files based on their extensions.
-    validFiles = [f for f in fileList if f.suffix.lower() in [".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"]]
+    validFiles = [f for f in fileList if f.suffix.lower() in IMAGE_SUFFIXES]
     # Limit the number of images per class to the specified maximum.
     limitedFiles = validFiles[:maxImagesPerClass]
     # Extend the main image files list with the selected files for this class.

@@ -11,6 +11,7 @@
 - [Execution Instructions](#execution-instructions)
 - [Experimental Results](#experimental-results)
 - [Advanced Features & Architectures](#advanced-features--architectures)
+- [Advanced Model Evaluation & Journal-Ready Analysis](#advanced-model-evaluation--journal-ready-analysis)
 - [Output Structure & Interpretation](#output-structure--interpretation)
 - [Example Console Output](#example-console-output)
 - [Explainability & XAI Features](#explainability--xai-features)
@@ -24,7 +25,12 @@ This repository provides a robust, production-grade PyTorch pipeline for image c
 Transformers (ViT) and other state-of-the-art architectures. It is specifically designed to accommodate students and
 researchers, offering an accessible yet highly configurable framework. The pipeline supports automatic dataset
 splitting, advanced data preprocessing (including histopathology-specific augmentations), multiple cutting-edge models,
-modern optimizers, comprehensive evaluation metrics, and integrated Explainable AI (XAI) capabilities.
+modern optimizers, comprehensive evaluation metrics, result aggregation utilities, and integrated Explainable AI (XAI)
+capabilities.
+
+A standout feature of this pipeline is the native integration of a **Topological Wasserstein Loss**, designed to enforce
+meaningful, linearly separable class clustering in the latent space, making it exceptionally well-suited for complex
+medical imaging tasks.
 
 ## Author Information
 
@@ -35,19 +41,17 @@ modern optimizers, comprehensive evaluation metrics, and integrated Explainable 
 ## Conceptual Foundations
 
 Prior to examining the source code, it is advantageous to comprehend the underlying computational processes. The
-following video resources are recommended to establish a foundational understanding.
+following curated video resources, articles, and tutorials are recommended to establish a foundational understanding of
+both the core mechanics and the advanced techniques utilized in this pipeline.
 
-### General Deep Learning Fundamentals
+### General Deep Learning & PyTorch Fundamentals
 
-1. [But what is a neural network? | Deep learning chapter 1](https://www.youtube.com/watch?v=aircAruvnKk)
+1. [But what is a neural network? | Deep learning chapter 1 (3Blue1Brown)](https://www.youtube.com/watch?v=aircAruvnKk)
 2. [A Gentle Introduction to Machine Learning](https://www.youtube.com/watch?v=Gv9_4yMHFhI)
+3. [PyTorch Crash Course: Deep Learning in Python](https://www.youtube.com/watch?v=uq7sbUlIDR8)
+4. [PyTorch in 1 Hour](https://www.youtube.com/watch?v=r1bquDz5GGA)
 
-### PyTorch Fundamentals
-
-1. [PyTorch Crash Course: Deep Learning in Python](https://www.youtube.com/watch?v=uq7sbUlIDR8)
-2. [PyTorch in 1 Hour](https://www.youtube.com/watch?v=r1bquDz5GGA)
-
-### Vision Transformers (ViT) Track
+### Vision Transformers (ViT) & Modern Architectures
 
 1. [An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale](https://www.youtube.com/watch?v=TrdevFK_am4)
 2. [Vision Transformer Quick Guide - Theory and Code](https://www.youtube.com/watch?v=j3VNqtJUoz0)
@@ -58,6 +62,45 @@ following video resources are recommended to establish a foundational understand
 
 1. [PyTorch CNN Part 1](https://www.youtube.com/watch?v=g6eHItPHd7k)
 2. [PyTorch CNN Part 2](https://www.youtube.com/watch?v=_QpiHNykR9k)
+
+### Explainable AI (XAI) & Interpretability *(Crucial for Steps 3A & 3B)*
+
+1. [ACM AI Reading Group 2/20 Session: Sanity Checks for Saliency Maps](https://www.youtube.com/watch?v=naxbilQxxPM)
+2. [Grad-CAM](https://www.youtube.com/watch?v=COjUB9Izk6E)
+3. [Integrated Gradients Explained — Theory, Axioms & Python Implementation](https://www.youtube.com/watch?v=CpiX4WurL7w)
+4. [RISE (randomized input sampling for explanation of black box models)](https://www.youtube.com/watch?v=VjchURwP1j8)
+
+### Model Calibration & Uncertainty Quantification *(Crucial for Step 5)*
+
+1. [PR-075: On Calibration of Modern Neural Networks (2017)](https://www.youtube.com/watch?v=odNHEkfJAc4)
+2. [Model Calibration - Estimated Calibration Error (ECE) Explained](https://www.youtube.com/watch?v=NDY2fH1FitQ)
+
+### Robustness, Perturbations, and Domain Shift *(Crucial for Step 6)*
+
+1. [PR-277: Benchmarking Neural Network Robustness to Common Corruptions and Perturbations](https://www.youtube.com/watch?v=EE4BxrAbNM8)
+2. [ImageNet-D: Benchmarking Neural Network Robustness on Diffusion Synthetic Object @CVPR2024 Highlight](https://www.youtube.com/watch?v=CQm2oDfCvR8)
+
+### Representation Learning & Latent Space Analysis *(Crucial for Step 8)*
+
+1. [How to Use t-SNE Effectively: Distill's Classic, Read and Highlighted](https://www.youtube.com/watch?v=4cDoRtr5aLo)
+2. [UMAP Dimension Reduction, Main Ideas!!!](https://www.youtube.com/watch?v=eN0wFzBA4Sc)
+3. [Cluster Analysis in Python - Silhouette, Calinski Harabasz, and Davies Bouldin for KMeans](https://www.youtube.com/watch?v=MHnoWsBJpeM)
+
+### Statistical Significance in Machine Learning *(Crucial for Step 7)*
+
+1. [Statistical Significance and p-Values Explained Intuitively](https://www.youtube.com/watch?v=DAkJhY2zQ3c)
+2. [What is a Raincloud Plot? [Simply explained]](https://www.youtube.com/watch?v=ituWaiJu3nI)
+
+### Digital Pathology & Histopathology Preprocessing *(Crucial for Medical Imaging)*
+
+1. [122 - Normalizing H&E images and digitally separating Hematoxylin and Eosin components](https://www.youtube.com/watch?v=yUrwEYgZUsA)
+2. [304 - Augmentation of histology images to train stain-agnostic deep learning models](https://www.youtube.com/watch?v=SuDtHqtC5OE)
+
+### Topological Data Analysis & Advanced Loss Functions *(Crucial for `WassersteinTopologicalLoss`)*
+
+1. [Persistent Homology | Introduction & Python Example Code](https://www.youtube.com/watch?v=5ezFcy9CIWE)
+2. [Wasserstein Distance & Optimal Transport — Fully Explained](https://www.youtube.com/watch?v=88ONbF_b3VE)
+3. [Contrastive Learning - 5 Minutes with Cyrill](https://www.youtube.com/watch?v=sftIkJ8MYL4)
 
 ## Environment Setup
 
@@ -81,7 +124,7 @@ pip install git+https://github.com/openai/CLIP.git
 # Install state-of-the-art optimizers for advanced Vision Transformer training.
 pip install lion-pytorch prodigyopt schedulefree
 
-# Install the HMB Helpers Package for Explainable AI (XAI) and advanced utility functions.
+# Install the HMB Helpers Package for Explainable AI (XAI), efficiency profiling, and advanced utility functions.
 pip install "hmb-helpers[cv,pytorch]"
 ```
 
@@ -161,6 +204,15 @@ Scheduler: "None"
 UseStainJitter: false
 UseBackgroundRemoval: false
 UseColorDeconvolution: false
+
+# --- Topological Wasserstein Loss Hyperparameters ---
+UseTopoWassersteinLoss: true
+Epsilon: 0.1
+LambdaTopo: 0.1
+LambdaContrastive: 0.1
+
+# --- Multi-Trial Execution ---
+Seeds: [ 42, 43, 44, 45, 46 ]
 ```
 
 ### Key Configuration Parameters Explained
@@ -172,16 +224,21 @@ UseColorDeconvolution: false
 - `UseMixup`: Blends images and labels to prevent overfitting.
 - `UseColorDeconvolution`: Separates Hematoxylin and Eosin stains, highly beneficial for medical imaging.
 - `UseBackgroundRemoval`: Masks out white background using Otsu's thresholding.
+- `UseTopoWassersteinLoss`: Enables the novel Topological Wasserstein Loss for improved feature space distributional
+  alignment and spatial constraints.
+- `Epsilon`, `LambdaTopo`, `LambdaContrastive`: Hyperparameters controlling the entropic regularization and weighting
+  factors for the topological spatial penalty and contrastive loss.
+- `Seeds`: A list of random seeds to ensure statistical significance through multi-trial execution.
 
 ## Execution Instructions
 
-### Step 1: Run the Script
+### Step 1: Run the Main Pipeline
 
 Open your terminal, navigate to the script directory, and execute:
 
 ```bash
 # Execute the main pipeline script.
-python PyTorchPretrainedViTPipeline.py
+python Step1PyTorchPretrainedViTPipeline.py
 ```
 
 *(Ensure your configuration file is named `config.pytorch.yaml` or specify it via `--config YourConfig.yaml`)*
@@ -190,6 +247,43 @@ python PyTorchPretrainedViTPipeline.py
 
 The script will print real-time training and validation metrics, automatically save the best model, and generate
 visualizations upon completion.
+
+### Step 3: Result Aggregation (For Multi-Seed Experiments)
+
+After running multiple seeds, aggregate the results to compute statistical summaries required for rigorous reporting:
+
+```bash
+# 1. Collect metrics from all experiment folders into consolidated CSVs.
+python Step2ACollectResults.py
+
+# 2. Aggregate multi-trial results to compute mean ± standard deviation across seeds.
+python Step2BAggregateMultiTrialResults.py
+```
+
+### Step 4: Execute Advanced Journal-Ready Analysis (Optional but Recommended)
+
+After the main pipeline completes, you can run the dedicated analysis scripts to generate supplementary materials
+required for top-tier publications:
+
+```bash
+# 1. Inference Efficiency Profiling
+python Step4InferenceEfficiencyProfiling.py
+
+# 2. Model Calibration Analysis
+python Step5ModelCalibrationAnalysis.py
+
+# 3. Robustness & Perturbation Analysis
+python Step6RobustnessPerturbationAnalysis.py
+
+# 4. Cross-Experiment Statistical Analysis (Requires multiple seed folders)
+python Step7CrossExperimentStatisticalAnalysis.py
+
+# 5. Representation Learning & Latent Space Analysis
+python Step8RepresentationLearningEmbeddings.py
+
+# 6. Minority Class Precision-Recall Curves
+python Step9MinorityClassPrecisionRecallCurves.py
+```
 
 ## Experimental Results
 
@@ -256,6 +350,10 @@ The following table illustrates the classification distribution across the 6 cat
 - `BEiT`: Bidirectional Encoder representation from Image Transformers.
 - `FastViT`: Ultra-fast mobile ViT combining CNN spatial mixing with global attention.
 - `EVA02`: State-of-the-art model utilizing masked image modeling and CLIP distillation.
+- `EVA02Large`: High-resolution (448x448) variant of EVA-02 for fine-grained feature extraction.
+- `ConvNeXtLargeCLIP`: ConvNeXt Large model with robust CLIP (LAION-2B) pre-training.
+- `SwinTransformerLarge384`: Swin Large model optimized for 384x384 high-resolution input.
+- `EfficientNetV2Large`: Highly efficient, robust feature extraction model.
 
 ### Advanced Optimizers
 
@@ -264,7 +362,7 @@ The following table illustrates the classification distribution across the 6 cat
     - `Lion`: EvoLved Sign Momentum (saves memory, faster convergence).
     - `Prodigy`: Auto-tunes learning rate dynamically.
     - `ScheduleFreeAdamW`: Schedule-free optimization.
-    - `Sophia`: Second-order optimizer using curvature information.
+    - `Sophia`: Second-order optimizer using curvature information (implemented natively to avoid package conflicts).
 
 ### Comprehensive Evaluation Metrics
 
@@ -276,31 +374,111 @@ The pipeline automatically calculates and exports:
 - Macro, Micro, and Weighted averages for: Precision, Recall, F1, Accuracy, Specificity, Balanced Accuracy (BAC),
   Matthews Correlation Coefficient (MCC), Youden's Index, and Yule's Q.
 
+## Advanced Model Evaluation & Journal-Ready Analysis
+
+To meet the rigorous standards of top-tier medical imaging and computer vision journals (e.g., *IEEE TMI*, *MedIA*,
+*MICCAI*), the pipeline includes dedicated scripts for comprehensive model evaluation beyond standard accuracy. These
+steps ensure statistical rigor, robustness, and deep interpretability.
+
+### 1. Inference Efficiency Profiling (`Step4InferenceEfficiencyProfiling.py`)
+
+- **Purpose:** Quantifies the computational cost of models to establish Pareto-optimal trade-offs between accuracy and
+  efficiency, a mandatory metric for deployment feasibility.
+- **Output:** Multi-metric Pareto fronts, parameter counts, latency comparisons, stacked memory breakdowns, GFLOPs,
+  throughput, and efficiency summary dashboards.
+- **Usage:** Profiles specified models using a dummy input and the `HMB.PyTorchModelMemoryProfiler` to generate
+  publication-ready efficiency visualizations and detailed JSON profiles.
+
+### 2. Model Calibration Analysis (`Step5ModelCalibrationAnalysis.py`)
+
+- **Purpose:** Evaluates whether the model's confidence aligns with its actual accuracy, a critical requirement for safe
+  clinical deployment.
+- **Output:** Expected Calibration Error (ECE) metric and publication-ready Reliability Diagrams (PDF/PNG).
+- **Usage:** Automatically runs on the test set to detect overconfidence or underconfidence in predictions.
+
+### 3. Robustness & Perturbation Analysis (`Step6RobustnessPerturbationAnalysis.py`)
+
+- **Purpose:** Quantifies model resilience against real-world imaging degradations (e.g., Gaussian noise, JPEG
+  compression, brightness shifts, contrast variations).
+- **Output:** Mean Corruption Error (mCE), accuracy heatmaps across severity levels, and ECE heatmaps under
+  perturbation.
+- **Usage:** Executes controlled corruptions on the test set to prove the model does not catastrophically fail in
+  degraded environments.
+
+### 4. Cross-Experiment Statistical Analysis (`Step7CrossExperimentStatisticalAnalysis.py`)
+
+- **Purpose:** Provides mathematical proof that performance differences between models or loss functions are
+  statistically significant, not due to random chance.
+- **Output:** Raincloud plots, Boxplots, Violin plots, and pairwise t-tests with Cohen's *d* effect sizes across
+  multiple random seeds.
+- **Usage:** Aggregates metrics from multiple seed directories (e.g., Seed-42 to Seed-46) to validate reproducibility
+  and significance.
+
+### 5. Representation Learning & Latent Space Analysis (`Step8RepresentationLearningEmbeddings.py`)
+
+- **Purpose:** Proves that the model (especially when using Topological Wasserstein Loss) learns meaningful, linearly
+  separable class clusters in the latent space.
+- **Output:** 2D/3D t-SNE and UMAP visualizations, Silhouette scores, Davies-Bouldin indices, Calinski-Harabasz scores,
+  and misclassification-highlighted embeddings.
+- **Usage:** Extracts penultimate layer embeddings and utilizes `HMB.ExplainabilityHelper` to generate interactive
+  Plotly HTML and static publication-ready figures.
+
+### 6. Minority Class Precision-Recall Curves (`Step9MinorityClassPrecisionRecallCurves.py`)
+
+- **Purpose:** Addresses class imbalance by evaluating the Area Under the Precision-Recall Curve (AUPRC) for
+  underrepresented classes, which ROC-AUC can be overly optimistic about.
+- **Output:** Highlighted Precision-Recall Curves (PRC) emphasizing minority classes (e.g., rare tumor grades).
+- **Usage:** Parses the `DetailedPredictions.csv` to compute and visualize per-class AUPRC, ensuring the model does not
+  achieve high accuracy by simply ignoring rare classes.
+
 ## Output Structure & Interpretation
 
-Upon completion, results are organized hierarchically:
+Upon completion, results are organized hierarchically. When advanced analysis scripts are executed, additional
+directories are populated:
 
 ```text
 Results/
- ├── Exp-Swin-Prodigy-64-Focal/
- │   ├── Train/
- │   │   ├── TrainClassificationReport.txt
- │   │   ├── TrainCM.csv
- │   │   ├── TrainCM.png
- │   │   ├── TrainDetailedPredictions.csv
- │   │   └── TrainEvaluationMetrics.json
- │   ├── Val/
- │   │   ├── ValClassificationReport.txt
- │   │   ├── ValCM.png
- │   │   └── ...
- │   ├── Test/
- │   │   ├── TestClassificationReport.txt
- │   │   ├── TestCM.png
- │   │   └── ...
- │   ├── BestModel.pt              # The best model weights
- │   ├── ClassHistograms.png       # Class distribution across splits
- │   ├── ConfigUsed.yaml           # Exact configuration used
- │   └── TrainingHistory.png       # Loss and accuracy curves
+ ├── Exp-EVA02-AdamW-16-CrossEntropy/
+ │   ├── Seed-42/
+ │   │   ├── Train/
+ │   │   │   └── ... (Training metrics and plots)
+ │   │   ├── Val/
+ │   │   │   └── ... (Validation metrics and plots)
+ │   │   ├── Test/
+ │   │   │   ├── TestClassificationReport.txt
+ │   │   │   ├── TestCM.png
+ │   │   │   ├── TestDetailedPredictions.csv
+ │   │   │   └── TestEvaluationMetrics.json
+ │   │   ├── Calibration/
+ │   │   │   ├── ReliabilityDiagram.pdf
+ │   │   │   └── CalibrationMetrics.json
+ │   │   ├── Robustness/
+ │   │   │   ├── RobustnessReport.json
+ │   │   │   ├── AccuracyHeatmap.png
+ │   │   │   └── EceHeatmap.png
+ │   │   ├── Embeddings/
+ │   │   │   ├── Embeddings.pkl
+ │   │   │   ├── Embeddings_Metadata.csv
+ │   │   │   ├── tSNE_Analysis/          # t-SNE plots and cluster metrics
+ │   │   │   └── UMAP_Analysis/          # UMAP plots and cluster metrics
+ │   │   ├── PRC_Analysis/
+ │   │   │   ├── PrecisionRecallCurves.pdf
+ │   │   │   └── PrecisionRecallCurves.png
+ │   │   ├── EfficiencyProfiling/        
+ │   │   │   ├── EVA02_Profile.json
+ │   │   │   └── EfficiencyDashboard.png
+ │   │   ├── BestModel.pt                # The best model weights
+ │   │   ├── ClassHistograms.png         # Class distribution across splits
+ │   │   ├── ConfigUsed.yaml             # Exact configuration used
+ │   │   └── TrainingHistory.png         # Loss and accuracy curves
+ │   └── StatisticalAnalysis/            # Aggregated across all seeds
+ │       ├── WeightedAccuracy_Raincloud.pdf
+ │       ├── WeightedAccuracy_Boxplot.pdf
+ │       └── StatisticalTests.json
+ ├── ValResults.csv                      
+ ├── TestResults.csv                     
+ ├── AggregatedResultsSummary.csv        
+ └── RawResults.csv                      
 ```
 
 ### Key Output Files
@@ -310,6 +488,8 @@ Results/
   error analysis.
 - `EvaluationMetrics.json`: A structured JSON containing all calculated mathematical metrics.
 - `TrainingHistory.png`: Visual plots of training and validation loss/accuracy over epochs.
+- `AggregatedResultsSummary.csv`: Consolidated mean ± standard deviation metrics across all random seeds for manuscript
+  tables.
 
 ## Example Console Output
 
@@ -326,8 +506,8 @@ Test samples: 257
 Data loaders ready.
 Class histograms saved to ./Results/ClassHistograms.png
 ============================================================
-Starting Experiment: Exp-Swin-Prodigy-64-Focal
-Output Directory: ./Results/Exp-Swin-Prodigy-64-Focal
+Starting Experiment: Exp-Swin-Prodigy-64-Focal | Seed: 42
+Output Directory: ./Results/Exp-Swin-Prodigy-64-Focal/Seed-42
 ============================================================
 Epoch 1/500 - Train Loss: 0.9114 - Train Acc: 0.5971 - Val Loss: 0.8052 - Val Acc: 0.6119
   Saved new best model with validation loss = 0.8052
@@ -337,9 +517,9 @@ Epoch 2/500 - Train Loss: 0.7142 - Train Acc: 0.6850 - Val Loss: 0.5765 - Val Ac
 Epoch 12/500 - Train Loss: 0.8921 - Train Acc: 0.7812 - Val Loss: 0.9102 - Val Acc: 0.7150
   Early stopping triggered after 12 epochs. Best Val Loss: 0.3027
 Training history plots saved to ./Results/TrainingHistory.png
-Starting evaluation: savePlots=True | outputDir=./Results/Exp-Swin-Prodigy-64-Focal | prefix=Test
-Confusion matrix saved to ./Results/Exp-Swin-Prodigy-64-Focal/Test/TestCM.png
-Pipeline Complete | Results saved to ./Results/Exp-Swin-Prodigy-64-Focal
+Starting evaluation: savePlots=True | outputDir=./Results/Exp-Swin-Prodigy-64-Focal/Seed-42 | prefix=Test
+Confusion matrix saved to ./Results/Exp-Swin-Prodigy-64-Focal/Seed-42/Test/TestCM.png
+Pipeline Complete | Results saved to ./Results/Exp-Swin-Prodigy-64-Focal/Seed-42
 ============================================================
 All experiments completed.
 ```
@@ -347,7 +527,7 @@ All experiments completed.
 ## Explainability & XAI Features
 
 To ensure transparency and interpretability in medical and high-stakes image classification, the pipeline includes a
-dedicated Explainable AI (XAI) module. This module leverages Class Activation Mapping (CAM) techniques from
+dedicated Explainable AI (XAI) module. This module utilizes Class Activation Mapping (CAM) techniques from
 the [HMB Helpers Package](https://github.com/HossamBalaha/HMB-Helpers-Package) to visualize the regions of an image that
 most significantly influence the model's predictions.
 
@@ -358,14 +538,15 @@ The integrated `CAMExplainerPyTorch` helper supports a comprehensive suite of at
 - **Gradient-based:** Grad-CAM, Grad-CAM++, XGrad-CAM, Layer-CAM, SmoothGrad-CAM++, Grad x Input.
 - **Perturbation-based:** Occlusion, Ablation-CAM.
 - **Activation-based:** Score-CAM, Eigen-CAM.
-- **Other:** Saliency, SmoothGrad, Integrated Gradients.
+- **Other:** Saliency, SmoothGrad, Integrated Gradients, RISE, Feature Ablation, ViT Grad-CAM, ViT XGrad-CAM, ViT
+  Eigen-CAM.
 
 ### XAI Execution Scripts
 
 To facilitate model interpretability, the repository includes two dedicated standalone scripts for generating
 Explainable AI visualizations.
 
-#### 1. `PyTorchPretrainedViTXAI.py` (Batch Processing by Method)
+#### 1. `Step3APyTorchPretrainedViTXAI.py` (Batch Processing by Method)
 
 **Description:**  
 This script automates the generation of Class Activation Mapping (CAM) visualizations for a trained model across a
@@ -379,8 +560,8 @@ visualizations separated by method.
 
 **How to Use:**
 
-1. Ensure you have a trained model checkpoint (e.g., `BestModel.pt`) and a properly organized dataset.
-2. Open `PyTorchPretrainedViTXAI.py` and update the following variables in the `if __name__ == "__main__":` block:
+1. Ensure you have a trained model checkpoint and a properly organized dataset.
+2. Open `Step3APyTorchPretrainedViTXAI.py` and update the following variables in the `if __name__ == "__main__":` block:
     - `datasetPath`: The absolute path to your dataset directory.
     - `modelCheckpointPath`: The absolute path to your trained `.pt` model weights.
     - `outputDir`: The desired directory for saving the XAI visualizations.
@@ -389,12 +570,12 @@ visualizations separated by method.
       `{0: "Healthy", 1: "Tumor"}`).
 3. Execute the script from your terminal:
    ```bash
-   python PyTorchPretrainedViTXAI.py
+   python Step3APyTorchPretrainedViTXAI.py
    ```
 4. The script will automatically load the model, sample up to 25 images per class from the specified split, and generate
    comprehensive CAM overlays for all supported methods.
 
-#### 2. `AdvancedXAIOnDataset.py` (Side-by-Side Visual Comparison)
+#### 2. `Step3BAdvancedXAIOnDataset.py` (Side-by-Side Visual Comparison)
 
 **Description:**  
 This script generates a **single, combined side-by-side figure** for each image, displaying the original image alongside
@@ -408,28 +589,17 @@ method-to-method comparison is required.
 **How to Use:**
 
 1. Ensure you have a trained model checkpoint and a properly organized dataset.
-2. Open `AdvancedXAIOnDataset.py` and update the following variables in the `if __name__ == "__main__":` block:
-    - `datasetPath`: The absolute path to your dataset directory.
-    - `modelCheckpointPath`: The absolute path to your trained `.pt` model weights.
-    - `outputDir`: The desired directory for saving the combined XAI figures.
-    - `modelName`, `numClasses`, and `effectiveImageSize`: The architecture details.
+2. Open `Step3BAdvancedXAIOnDataset.py` and update the following variables in the `if __name__ == "__main__":` block:
+    - `datasetPath`, `modelCheckpointPath`, `outputDir`, `modelName`, `numClasses`, and `effectiveImageSize`.
     - `classNamesMapping`: A dictionary mapping integer class indices to their respective CamelCase string names.
     - `methods`: A list of specific XAI methods you want to include in the side-by-side comparison (e.g.,
       `["integratedgradients", "smoothgrad", "vitgradcam"]`).
 3. Execute the script from your terminal:
    ```bash
-   python AdvancedXAIOnDataset.py
+   python Step3BAdvancedXAIOnDataset.py
    ```
 4. The script will automatically load the model, sample images per class, and save high-resolution `.png` and `.pdf`
    figures containing the original image and all selected XAI overlays side-by-side.
-
-### Key Differences Summary
-
-| Feature           | `PyTorchPretrainedViTXAI.py`                            | `AdvancedXAIOnDataset.py`                                       |
-|:------------------|:--------------------------------------------------------|:----------------------------------------------------------------|
-| **Output Format** | Individual files or folders per XAI technique.          | Single combined grid figure (Original + all methods) per image. |
-| **Best For**      | Large-scale batch processing and dataset-wide analysis. | Direct visual comparison, publications, and presentations.      |
-| **Customization** | Processes all available methods in the helper package.  | Allows selecting a specific subset of methods for the grid.     |
 
 ## Appendix: Inference Example
 
@@ -447,7 +617,7 @@ from torchvision import transforms
 from PIL import Image
 
 # Import the standard vision transformer model from the pipeline module.
-from PyTorchPretrainedViTPipeline import StandardViT
+from Step1PyTorchPretrainedViTPipeline import StandardViT
 
 
 # Define the inference function for making predictions on a single image.
@@ -527,4 +697,4 @@ contact information available on my CV at the following
 link: [https://hossambalaha.github.io/](https://hossambalaha.github.io/)
 
 ---
-*Last Updated: August 2026*
+*Last Updated: September 2026*
