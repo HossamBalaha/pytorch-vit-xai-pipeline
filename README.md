@@ -39,13 +39,12 @@
 ## Introduction
 
 This repository provides a robust, production-grade PyTorch pipeline for image classification utilizing Vision
-Transformers (ViT) and other state-of-the-art architectures. It is specifically designed to accommodate students and
-researchers, offering an accessible yet highly configurable framework. The pipeline supports automatic dataset
-splitting, advanced data preprocessing (including histopathology-specific augmentations), multiple cutting-edge models,
-modern optimizers, comprehensive evaluation metrics, result aggregation utilities, and integrated Explainable AI (XAI)
-capabilities.
-
-A standout feature of this pipeline is the native integration of a Topological Wasserstein Loss, designed to enforce
+Transformers (ViT), hybrid classical-quantum networks, and other state-of-the-art architectures. It is specifically
+designed to accommodate students and researchers, offering an accessible yet highly configurable framework. The pipeline
+supports automatic dataset splitting, advanced data preprocessing (including histopathology-specific augmentations),
+multiple cutting-edge models, modern optimizers, comprehensive evaluation metrics, result aggregation utilities,
+integrated Explainable AI (XAI) capabilities, and native Quantum Transfer Learning via PennyLane. A standout feature of
+this pipeline is the native integration of a Topological Wasserstein Loss, designed to enforce
 meaningful, linearly separable class clustering in the latent space, making it exceptionally well-suited for complex
 medical imaging tasks.
 
@@ -141,6 +140,9 @@ pip install git+https://github.com/openai/CLIP.git
 # Install state-of-the-art optimizers for advanced Vision Transformer training.
 pip install lion-pytorch prodigyopt schedulefree
 
+# Install PennyLane for quantum machine learning and hybrid classical-quantum models.
+pip install pennylane
+
 # Install the HMB Helpers Package for Explainable AI (XAI), efficiency profiling, and advanced utility functions.
 pip install "hmb-helpers[cv,pytorch]"
 ```
@@ -191,6 +193,7 @@ OutputDir: "/path/to/your/output"
 ModelName:
   - "SwinTransformerV2"
   - "EVA02"
+  - "QuantumResNet"
 
 Optimizer:
   - "Prodigy"
@@ -371,6 +374,9 @@ The following table illustrates the classification distribution across the 6 cat
 - `ConvNeXtLargeCLIP`: ConvNeXt Large model with robust CLIP (LAION-2B) pre-training.
 - `SwinTransformerLarge384`: Swin Large model optimized for 384x384 high-resolution input.
 - `EfficientNetV2Large`: Highly efficient, robust feature extraction model.
+- `QuantumResNet`: A hybrid classical-quantum architecture leveraging a pre-trained ResNet152 feature extractor, coupled
+  with a custom dimensionality reduction block and a PennyLane variational quantum circuit for advanced latent space
+  classification.
 
 ### Advanced Optimizers
 

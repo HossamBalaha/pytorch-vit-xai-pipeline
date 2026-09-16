@@ -29,6 +29,9 @@ from prodigyopt import Prodigy  # Import the Prodigy optimizer from prodigyopt.
 from schedulefree import AdamWScheduleFree  # Import the AdamWScheduleFree optimizer from schedulefree.
 from timm.data import Mixup as TimmMixup  # Import the Mixup data augmentation from timm.
 from timm.loss import LabelSmoothingCrossEntropy, SoftTargetCrossEntropy, BinaryCrossEntropy
+import torchvision # Import the torchvision module for models and datasets.
+import pennylane as qml # Import the PennyLane library for quantum machine learning.
+from pennylane import numpy as qNumpy # Import PennyLane's numpy for quantum operations.
 
 # Enable CuDNN benchmark for optimized convolution algorithms.
 torch.backends.cudnn.benchmark = True
@@ -182,6 +185,124 @@ class StainJitter(torch.nn.Module):
 
 def fprint(msg, *args, **kwargs):
   print(msg, flush=True, *args, **kwargs)
+
+
+# Define the variational quantum circuit function for PennyLane.
+def quantumCircuit(qInputFeatures, qWeightsFlat, nQubits, qDepth):
+  # Reshape the flat weights into a depth by qubits matrix.
+  qWeights = qWeightsFlat.reshape(qDepth, nQubits)
+  # Apply a layer of Hadamard gates to all qubits.
+  for idx in range(nQubits):
+    # Apply the Hadamard gate to the current qubit.
+    qml.Hadamard(wires=idx)
+  # Apply a layer of parametrized Y rotations for feature embedding.
+  for idx, element in enumerate(qInputFeatures):
+    # Apply the RY gate with the embedded feature.
+    qml.RY(element, wires=idx)
+  # Apply the sequence of trainable variational layers.
+  for k in range(qDepth):
+    # Apply the entangling layer of CNOT gates.
+    for i in range(0, nQubits - 1, 2):
+      # Apply CNOT between even and odd qubits.
+      qml.CNOT(wires=[i, i + 1])
+    # Apply the shifted entangling layer of CNOT gates.
+    for i in range(1, nQubits - 1, 2):
+      # Apply CNOT between odd and even qubits.
+      qml.CNOT(wires=[i, i + 1])
+    # Apply the parametrized Y rotation layer with trainable weights.
+    for idx, element in enumerate(qWeights[k]):
+      # Apply the RY gate with the trainable weight.
+      qml.RY(element, wires=idx)
+  # Calculate the expectation values in the Z basis.
+  expVals = [qml.expval(qml.PauliZ(position)) for position in range(nQubits)]
+  # Return the tuple of expectation values.
+  return tuple(expVals)
+
+
+# Define the dressed quantum network module for quantum transfer learning.
+class DressedQuantumNet(torch.nn.Module):
+  """
+  Torch module implementing the dressed quantum net.
+  """
+
+  # Initialize the dressed quantum network.
+  def __init__(self, numClasses, nQubits=4, qDepth=10, qDelta=0.01):
+    # Call the parent module constructor.
+    super().__init__()
+    # Store the number of output classes.
+    self.numClasses = numClasses
+    # Store the number of qubits.
+    self.nQubits = nQubits
+    # Store the quantum circuit depth.
+    self.qDepth = qDepth
+    # Store the initial spread of random quantum weights.
+    self.qDelta = qDelta
+    # Define the PennyLane quantum device.
+    self.dev = qml.device("default.qubit", wires=self.nQubits)
+    # Define the classical pre-processing linear layer.
+    self.preNet = torch.nn.Linear(8, self.nQubits)
+    # Define the quantum parameters as a trainable parameter.
+    self.qParams = torch.nn.Parameter(self.qDelta * torch.randn(self.qDepth * self.nQubits))
+    # Define the classical post-processing linear layer.
+    self.postNet = torch.nn.Linear(self.nQubits, self.numClasses)
+    # Create the PennyLane QNode for the quantum circuit.
+    self.quantumNet = qml.QNode(quantumCircuit, self.dev, interface="torch")
+
+  # Define the forward pass of the dressed quantum network.
+  def forward(self, inputFeatures):
+    # Obtain the input features for the quantum circuit via pre-processing.
+    preOut = self.preNet(inputFeatures)
+    # Scale the pre-processed features using tanh and pi.
+    qIn = torch.tanh(preOut) * (qNumpy.pi / 2.0)
+    # Initialize an empty tensor for the quantum output.
+    qOut = torch.Tensor(0, self.nQubits)
+    # Move the quantum output tensor to the correct device.
+    qOut = qOut.to(inputFeatures.device)
+    # Iterate over each element in the batch.
+    for elem in qIn:
+      # Apply the quantum circuit to the current element.
+      qOutElem = torch.hstack(self.quantumNet(elem, self.qParams, self.nQubits, self.qDepth)).float().unsqueeze(0)
+      # Concatenate the quantum output element to the batch output.
+      qOut = torch.cat((qOut, qOutElem))
+    # Return the final prediction from the post-processing layer.
+    return self.postNet(qOut)
+
+
+# Define the function to build the Quantum ResNet model.
+def BuildQuantumResNetModel(numClasses, device):
+  # Load the pre-trained ResNet152 model from torchvision.
+  baseModel = torchvision.models.resnet152(weights=torchvision.models.ResNet152_Weights.DEFAULT)
+  # Freeze the parameters of the base ResNet model for transfer learning.
+  for param in baseModel.parameters():
+    # Set requires_grad to False to freeze the weights.
+    param.requires_grad = False
+  # Replace the final fully connected layer with a custom sequential block.
+  baseModel.fc = torch.nn.Sequential(
+    # Add the first linear layer to reduce dimensions.
+    torch.nn.Linear(2048, 512),
+    # Add a ReLU activation function.
+    torch.nn.ReLU(inplace=True),
+    # Add the second linear layer.
+    torch.nn.Linear(512, 256),
+    # Add another ReLU activation function.
+    torch.nn.ReLU(inplace=True),
+    # Add the third linear layer.
+    torch.nn.Linear(256, 128),
+    # Add the fourth linear layer.
+    torch.nn.Linear(128, 64),
+    # Add a ReLU activation function.
+    torch.nn.ReLU(inplace=True),
+    # Add the fifth linear layer.
+    torch.nn.Linear(64, 16),
+    # Add the sixth linear layer to match quantum input size.
+    torch.nn.Linear(16, 8),
+    # Add the dressed quantum network for quantum classification.
+    DressedQuantumNet(numClasses=numClasses, nQubits=4, qDepth=10, qDelta=0.01)
+  )
+  # Move the model to the specified device.
+  baseModel = baseModel.to(device)
+  # Return the constructed quantum hybrid model.
+  return baseModel
 
 
 # Define the FocalLoss class directly to avoid timm version conflicts.
@@ -382,7 +503,7 @@ class WassersteinTopologicalLoss(torch.nn.Module):
     batchMean = classFeatures.mean(dim=0)
     # Compute the new prototype value.
     new_val = (self.prototypeMomentum * self.classPrototypes.data[classIndex]) + (
-        (1 - self.prototypeMomentum) * batchMean)
+      (1 - self.prototypeMomentum) * batchMean)
     # Use copy_ to safely update the buffer data without triggering autograd version errors.
     self.classPrototypes.data[classIndex].copy_(new_val)
 
@@ -1465,6 +1586,14 @@ def BuildViTModel(
     # Build the EfficientNetV2 Large model for highly efficient, robust feature extraction.
     model = BuildTimmModel("hf-hub:timm/efficientnetv2_rw_t.ra2_in1k", numClasses)
     return model, None
+
+  # Check if the model is QuantumResNet.
+  elif (modelName == "QuantumResNet"):
+    # Build the Quantum ResNet hybrid model.
+    model = BuildQuantumResNetModel(numClasses, device)
+    # Return the model and None for the secondary model.
+    return model, None
+
   else:
     # Raise an error for unsupported models.
     raise ValueError(f"Unsupported ViT model: {modelName}")

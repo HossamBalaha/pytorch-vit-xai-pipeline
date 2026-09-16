@@ -6,16 +6,17 @@
 
 # --- Data and Output Paths ---
 # Path to the root directory of your dataset.
-DataDir: "D:/Recent Projects/Image Classification Pipeline for Students/Dataset/Garbage Classification/SplitDataset"
+DataDir: "/path/to/your/dataset"
 
 # Directory where results, models, and logs will be saved.
-OutputDir: "D:/Recent Projects/Image Classification Pipeline for Students/Experiments/Exp-XXX"
+OutputDir: "/path/to/your/Experiments/Exp-XXX"
 
 # Pass a list to run multiple models. The script will loop through all combinations.
 # Available Options: "StandardViT", "T2TViT", "HierarchicalViT", "CLIPViT",
 # "SwinTransformer", "SwinTransformerV2", "DeiT", "ConvNeXt", "ConvNeXtV2", "MaxViT", "BEiT", "FastViT", "EVA02",
-# "EVA02Large", "ConvNeXtLargeCLIP", "SwinTransformerLarge384", "EfficientNetV2Large".
+# "EVA02Large", "ConvNeXtLargeCLIP", "SwinTransformerLarge384", "EfficientNetV2Large", "QuantumResNet".
 ModelName:
+  - "QuantumResNet"
   - "EVA02"
 
 # Pass a list to run multiple optimizers.
@@ -96,7 +97,7 @@ Seeds: [ 42, 43, 44, 45, 46 ]
 # --- Topological Wasserstein Loss Hyperparameters ---
 # Enable the Topological Wasserstein Loss for single-resolution histopathology.
 # Set to "false" to revert to standard classification training.
-UseTopoWassersteinLoss: true
+UseTopoWassersteinLoss: false
 
 # Entropic regularization parameter for the Sinkhorn' algorithm.
 # Lower values (e.g., 0.01) enforce stricter optimal transport but may cause numerical instability.
