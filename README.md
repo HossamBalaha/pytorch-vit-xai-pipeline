@@ -1,5 +1,22 @@
 # Comprehensive Guide to Vision Transformer (ViT) Image Classification Pipeline
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white" alt="Python Version">
+  <img src="https://img.shields.io/badge/PyTorch-2.0%2B-EE4C2C?logo=pytorch&logoColor=white" alt="PyTorch Version">
+  <img src="https://img.shields.io/badge/License-Academic%20and%20Non--Commercial-orange" alt="License">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Architectures-EVA02%20%7C%20Swin%20%7C%20DeiT%20%7C%20ConvNeXt-8A2BE2" alt="Supported Architectures">
+  <img src="https://img.shields.io/badge/XAI-GradCAM%20%7C%20RISE%20%7C%20Integrated%20Gradients-FFD700" alt="Explainable AI">
+</p>
+
+<p align="center">
+  <a href="https://hossambalaha.github.io/">
+    <img src="https://img.shields.io/badge/Author-Hossam%20Magdy%20Balaha-1DA1F2?logo=github" alt="Author">
+  </a>
+</p>
+
 ## Table of Contents
 
 - [Introduction](#introduction)
@@ -28,7 +45,7 @@ splitting, advanced data preprocessing (including histopathology-specific augmen
 modern optimizers, comprehensive evaluation metrics, result aggregation utilities, and integrated Explainable AI (XAI)
 capabilities.
 
-A standout feature of this pipeline is the native integration of a **Topological Wasserstein Loss**, designed to enforce
+A standout feature of this pipeline is the native integration of a Topological Wasserstein Loss, designed to enforce
 meaningful, linearly separable class clustering in the latent space, making it exceptionally well-suited for complex
 medical imaging tasks.
 
