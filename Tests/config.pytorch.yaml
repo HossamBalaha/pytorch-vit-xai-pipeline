@@ -9,7 +9,7 @@
 DataDir: "/path/to/your/dataset"
 
 # Directory where results, models, and logs will be saved.
-OutputDir: "/path/to/your/Experiments/Exp-XXX"
+OutputDir: "./Tests/Experiments/Exp-XXX"
 
 # --- Model Configuration ---
 # Pass a list to run multiple models. The script will loop through all combinations.
@@ -21,8 +21,20 @@ OutputDir: "/path/to/your/Experiments/Exp-XXX"
 # "FractalResonanceViTModel", "TopologicalQuantumViTModel", "HolographicInterferenceViTModel",
 # "NeuromorphicLiquidStateViTModel".
 ModelName:
-  - "ConvNeXtV2"
-  - "EVA02"
+  - "QuantumResNet"
+  - "VisionKANModel"
+  - "NeuralODEViTModel"
+  - "SpikingViTModel"
+  - "HypernetworkViTModel"
+  - "LiquidSSMViTModel"
+  - "TestTimeEvolvingViTModel"
+  - "TensorNetworkEntangledViTModel"
+  - "DiffusionPriorEnergyViTModel"
+  - "FractalResonanceViTModel"
+  - "TopologicalQuantumViTModel"
+  - "HolographicInterferenceViTModel"
+  - "NeuromorphicLiquidStateViTModel"
+  - "StandardViT"
 
 # Enable loading pretrained ImageNet weights into custom from-scratch models.
 # When enabled, compatible layers (patch embedding, class token, positional embedding,
@@ -43,13 +55,10 @@ PretrainedModelName: "vit_base_patch16_224"
 # Available Options: "Adam", "AdamW", "SGD", "RMSprop", "RAdam", "Lion", "Prodigy", "ScheduleFreeAdamW", "Sophia".
 Optimizer:
   - "AdamW"
-  - "Prodigy"
-  - "Lion"
 
 # Pass a list to run multiple loss functions.
 # Available Options: "CrossEntropy", "Focal", "LabelSmoothing".
 LossFunction:
-  - "Focal"
   - "CrossEntropy"
 
 # Initial learning rate for the optimizer.
@@ -137,8 +146,8 @@ Seeds: [ 42, 43, 44, 45, 46 ]
 
 # --- Topological Wasserstein Loss Hyperparameters ---
 # Note: Topological Wasserstein Loss parameters (UseTopoWassersteinLoss, Epsilon,
-# LambdaTopo, LambdaContrastive) have been removed in the current version until
-# further notice.
+# LambdaTopo, LambdaContrastive) have been removed as they are not supported
+# by the standard HMB Training Pipeline wrapper.
 
 # Enable the Topological Wasserstein Loss for single-resolution histopathology.
 # Set to "false" to revert to standard classification training.

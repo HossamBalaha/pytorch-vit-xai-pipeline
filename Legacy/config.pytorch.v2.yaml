@@ -11,7 +11,6 @@ DataDir: "/path/to/your/dataset"
 # Directory where results, models, and logs will be saved.
 OutputDir: "/path/to/your/Experiments/Exp-XXX"
 
-# --- Model Configuration ---
 # Pass a list to run multiple models. The script will loop through all combinations.
 # Available Options: "StandardViT", "T2TViT", "HierarchicalViT", "CLIPViT",
 # "SwinTransformer", "SwinTransformerV2", "DeiT", "ConvNeXt", "ConvNeXtV2", "MaxViT", "BEiT", "FastViT", "EVA02",
@@ -21,8 +20,7 @@ OutputDir: "/path/to/your/Experiments/Exp-XXX"
 # "FractalResonanceViTModel", "TopologicalQuantumViTModel", "HolographicInterferenceViTModel",
 # "NeuromorphicLiquidStateViTModel".
 ModelName:
-  - "ConvNeXtV2"
-  - "EVA02"
+  - "QuantumResNet"
 
 # Enable loading pretrained ImageNet weights into custom from-scratch models.
 # When enabled, compatible layers (patch embedding, class token, positional embedding,
@@ -38,30 +36,16 @@ UsePretrainedCustomModels: true
 # "deit3_large_patch16_224_in21ft1k".
 PretrainedModelName: "vit_base_patch16_224"
 
-# --- Optimization Configuration ---
 # Pass a list to run multiple optimizers.
 # Available Options: "Adam", "AdamW", "SGD", "RMSprop", "RAdam", "Lion", "Prodigy", "ScheduleFreeAdamW", "Sophia".
 Optimizer:
   - "AdamW"
-  - "Prodigy"
-  - "Lion"
 
 # Pass a list to run multiple loss functions.
 # Available Options: "CrossEntropy", "Focal", "LabelSmoothing".
 LossFunction:
-  - "Focal"
   - "CrossEntropy"
 
-# Initial learning rate for the optimizer.
-# Note: If using "Prodigy", this value is ignored as it auto-tunes the learning rate.
-# LR of 0.00001 is recommended for most tasks, but you may need to adjust it based on your dataset and model.
-# LR of 0.0001 is recommended for large datasets and models, while LR of 0.000001 is recommended for small datasets and models.
-LearningRate: 0.0001
-
-# Learning rate scheduler ("None", "CosineWarmup", "ReduceLROnPlateau").
-Scheduler: "None"
-
-# --- Training Hyperparameters ---
 # Input image size (height and width) for resizing during preprocessing.
 # Note: 224 is highly recommended for CLIP, SwinTransformer, and the new SOTA models.
 ImageSize: 224
@@ -69,13 +53,24 @@ ImageSize: 224
 # Number of samples per batch.
 BatchSize: 16
 
+# Initial learning rate for the optimizer.
+# Note: If using "Prodigy", this value is ignored as it auto-tunes the learning rate.
+# LR of 0.00001 is recommended for most tasks, but you may need to adjust it based on your dataset and model.
+# LR of 0.0001 is recommended for large datasets and models, while LR of 0.000001 is recommended for small datasets and models.
+LearningRate: 0.0001
+
 # Maximum number of training epochs.
 NumEpochs: 100
+
+# Apply data augmentation techniques during training (e.g., random flips, rotations, color jitter).
+UseAugmentation: true
+
+# Computation device preference ("auto", "cpu", or "cuda").
+Device: "cuda"
 
 # Number of epochs with no improvement after which training will be stopped (Early Stopping).
 Patience: 25
 
-# --- Advanced Training Features ---
 # Enable Automatic Mixed Precision (AMP) for faster training and lower memory usage.
 UseAmp: true
 
@@ -104,42 +99,19 @@ CutmixAlpha: 1.0
 # Also used when `UseMixup` is enabled, as MixUp implicitly applies label smoothing.
 LabelSmoothing: 0.1
 
-# --- Pipeline Control Parameters (Previously Hardcoded) ---
-# Criterion to judge the best model for checkpointing and early stopping.
-# Options: "val_loss", "val_accuracy", "both".
-JudgeBy: "val_accuracy"
-
-# Save a checkpoint every N epochs. Set to null to disable periodic saving.
-SaveEvery: null
-
-# Maximum gradient norm for clipping. Set to null to disable gradient clipping.
-MaxGradNorm: null
-
-# Whether to resume training from the last checkpoint if it exists.
-ResumeFromCheckpoint: false
-
-# --- Data Augmentation & Preprocessing ---
-# Apply data augmentation techniques during training (e.g., random flips, rotations, color jitter).
-UseAugmentation: true
+# Learning rate scheduler ("None", "CosineWarmup").
+Scheduler: "None"
 
 # Specific options for digital pathology datasets (e.g., TCGA, CAMELYON16, etc.).
 UseStainJitter: false
 UseBackgroundRemoval: false
 UseColorDeconvolution: false
 
-# --- Experiment Management ---
-# Computation device preference ("auto", "cpu", or "cuda").
-Device: "cuda"
-
 # Pass a list of random seeds for multi-trial execution to ensure statistical significance.
 Seeds: [ 42, 43, 44, 45, 46 ]
 
 
 # --- Topological Wasserstein Loss Hyperparameters ---
-# Note: Topological Wasserstein Loss parameters (UseTopoWassersteinLoss, Epsilon,
-# LambdaTopo, LambdaContrastive) have been removed in the current version until
-# further notice.
-
 # Enable the Topological Wasserstein Loss for single-resolution histopathology.
 # Set to "false" to revert to standard classification training.
 UseTopoWassersteinLoss: false

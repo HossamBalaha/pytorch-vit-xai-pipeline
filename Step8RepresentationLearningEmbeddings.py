@@ -1,17 +1,14 @@
-import os
-import torch
-import numpy
-import pickle
-import pandas
+import os, torch, pickle, numpy, pandas
 from tqdm import tqdm
 from pathlib import Path
-from Step1PyTorchPretrainedViTPipeline import BuildViTModel, PyTorchFolderBasedDataPipeline
 from HMB.Utils import fprint
 from HMB.PyTorchHelper import LoadModel
+from HMB.Initializations import UpdateMatplotlibSettings
+from HMB.PyTorchClassificationModelsZoo import BuildViTModel
 from HMB.ExplainabilityHelper import TSNEFeaturesExplainability, UMAPFeaturesExplainability
+from Step1PyTorchPretrainedViTPipeline import PyTorchFolderBasedDataPipeline
 
 
-# Define the function to extract and save embeddings using a custom loop.
 def ExtractAndSaveEmbeddings(model, dataPipeline, outputDirectory, device):
   # Convert the output directory to a Path object.
   outputPath = Path(outputDirectory)
@@ -19,14 +16,12 @@ def ExtractAndSaveEmbeddings(model, dataPipeline, outputDirectory, device):
   outputPath.mkdir(parents=True, exist_ok=True)
   # Print the starting message.
   fprint("Starting custom embedding extraction.")
-  # Initialize lists to store embeddings, labels, predictions, and filenames.
+  # Initialize lists to store embeddings, labels, and predictions.
   allEmbeddings = []
   # Initialize the labels list.
   allLabels = []
   # Initialize the predictions list.
   allPreds = []
-  # Initialize the filenames list.
-  allFilenames = []
   # Set the model to evaluation mode.
   model.eval()
   # Use the test dataloader from the pipeline.
@@ -38,7 +33,7 @@ def ExtractAndSaveEmbeddings(model, dataPipeline, outputDirectory, device):
   # Disable gradient computation for inference.
   with torch.no_grad():
     # Iterate over the dataloader with a progress bar.
-    for inputs, labels, filenames in tqdm(dataLoader, desc="Extracting Embeddings"):
+    for inputs, labels in tqdm(dataLoader, desc="Extracting Embeddings"):
       # Move inputs to the specified device.
       inputs = inputs.to(device)
       # Extract features using the timm model's forward_features method.
@@ -71,8 +66,6 @@ def ExtractAndSaveEmbeddings(model, dataPipeline, outputDirectory, device):
       allLabels.extend(labels.numpy())
       # Extend the predictions list.
       allPreds.extend(preds)
-      # Extend the filenames list.
-      allFilenames.extend(filenames)
   # Concatenate all embeddings into a single numpy array.
   allEmbeddings = numpy.concatenate(allEmbeddings, axis=0)
   # Convert labels and predictions to numpy arrays.
@@ -82,15 +75,13 @@ def ExtractAndSaveEmbeddings(model, dataPipeline, outputDirectory, device):
   # Create a dictionary to store the extracted data.
   embeddingsDict = {
     # Store the embeddings array.
-    "Embeddings": allEmbeddings,
+    "Embeddings" : allEmbeddings,
     # Store the labels array.
-    "Labels": allLabels,
+    "Labels"     : allLabels,
     # Store the predictions array.
     "Predictions": allPreds,
-    # Store the filenames list.
-    "Filenames": allFilenames,
     # Store the class names list.
-    "ClassNames": dataPipeline.classNames
+    "ClassNames" : dataPipeline.classNames
   }
   # Define the path for the pickle file.
   picklePath = outputPath / "Embeddings.pkl"
@@ -102,14 +93,12 @@ def ExtractAndSaveEmbeddings(model, dataPipeline, outputDirectory, device):
   fprint("Embeddings saved to " + str(picklePath))
   # Create a dictionary for the metadata CSV file.
   csvData = {
-    # Store the filenames.
-    "Filename": allFilenames,
     # Store the labels.
-    "Label": allLabels,
+    "Label"     : allLabels,
     # Store the predictions.
     "Prediction": allPreds,
     # Store the class names mapped from labels.
-    "ClassName": [dataPipeline.classNames[l] for l in allLabels]
+    "ClassName" : [dataPipeline.classNames[l] for l in allLabels]
   }
   # Convert the dictionary to a pandas DataFrame.
   csvDataFrame = pandas.DataFrame(csvData)
@@ -169,6 +158,8 @@ def ExtractAndSaveEmbeddings(model, dataPipeline, outputDirectory, device):
     enableMisclassificationHighlight=True,
     # Enable centroid annotations for cluster identification.
     enableCentroidAnnotations=True,
+    fontSizeTitle=20,
+    fontSizeAxis=16,
   )
   # Compute UMAP embeddings and generate publication-ready visualizations using HMB.
   fprint("Computing UMAP and generating enhanced visualizations...")
@@ -196,27 +187,32 @@ def ExtractAndSaveEmbeddings(model, dataPipeline, outputDirectory, device):
     enableMisclassificationHighlight=True,
     # Enable centroid annotations for cluster identification.
     enableCentroidAnnotations=True,
+    fontSizeTitle=20,
+    fontSizeAxis=16,
   )
   # Print the completion message.
   fprint("Embedding extraction and advanced latent space visualization complete.")
 
 
-# Define the main execution block.
 if (__name__ == "__main__"):
+  # Update the matplotlib settings for consistent plotting.
+  UpdateMatplotlibSettings()
   # Define the dataset directory.
   datasetDirectory = "./data"
+
   # Define the model checkpoint path.
   modelCheckpointPath = "./Experiments/BestModel.pt"
+
   # Define the output directory.
   outputDirectory = "./Experiments/Embeddings"
   # Define the model name.
-  modelName = "EVA02"
+  modelName = "ConvNeXtV2"
+  # Define the number of classes.
+  numClasses = 7
   # Determine the device to use.
   device = "cuda" if (torch.cuda.is_available()) else "cpu"
   # Define the image size.
   imageSize = 224
-  # Define the number of classes.
-  numClasses = 9
   # Create the data pipeline to get the dataloaders and class names.
   dataPipeline = PyTorchFolderBasedDataPipeline(dataDir=datasetDirectory, imageSize=imageSize)
   # Build the model.

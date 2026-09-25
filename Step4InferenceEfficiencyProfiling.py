@@ -1,123 +1,143 @@
-import torch
-import pandas
+import torch, pandas
 from pathlib import Path
 from HMB.PlotsHelper import EfficiencyPlotter
-from HMB.PyTorchModelMemoryProfiler import PyTorchModelMemoryProfiler
 from HMB.Initializations import UpdateMatplotlibSettings
-from Step1PyTorchPretrainedViTPipeline import BuildViTModel
+from HMB.PyTorchClassificationModelsZoo import BuildViTModel
+from HMB.PyTorchModelMemoryProfiler import PyTorchModelMemoryProfiler
+from HMB.Examples.ModelsInferenceEfficiencyProfiling import ProfileModelEfficiency
 
 
-# Define the function to profile model efficiency using HMB profiler.
-def ProfileModelEfficiency(model, inputTensor, device, numIterations=100):
-  # Extract the input shape from the tensor excluding batch dimension.
-  inputShape = tuple(inputTensor.shape[1:])
-  # Create the HMB profiler instance with FP32 precision.
-  profiler = PyTorchModelMemoryProfiler(
-    model=model,
-    inputShape=inputShape,
-    batchSize=inputTensor.shape[0],
-    precision="FP32",
-    device=device
-  )
-  # Run comprehensive memory and performance profiling.
-  memoryProfile = profiler.ProfileModelMemory(
-    optimizerType="Adam",
-    isTransformer=False,
-    checkpointing=False,
-    deviceFLOPSGFLOPS=None,
-    datasetSize=None,
-    trainingMultiplier=3.0,
-    runMicroBenchmark=True
-  )
-  # Extract performance estimates from the profile.
-  performanceEstimates = memoryProfile["PerformanceEstimates"]
-  # Extract memory breakdown in MB.
-  memoryBreakdownMB = memoryProfile["MemoryBreakdownMB"]
-  # Extract FLOPs estimate.
-  flopsEstimate = memoryProfile["FLOPsEstimate"]
-  # Create efficiency metrics dictionary using HMB data.
-  efficiencyMetrics = {
-    "ParameterCount"        : memoryProfile["ModelInfo"]["TotalParameters"],
-    "TrainableParameters"   : memoryProfile["ModelInfo"]["TrainableParameters"],
-    "AverageLatencyMs"      : (performanceEstimates.get("TimePerInferenceSampleSec", 0) or 0) * 1000,
-    "PeakMemoryMb"          : memoryBreakdownMB["TotalInferenceMemory"],
-    "TrainingMemoryMb"      : memoryBreakdownMB["TotalTrainingMemory"],
-    "TotalGFLOPs"           : flopsEstimate.get("TotalGFLOPs", 0),
-    "InferenceSamplesPerSec": performanceEstimates.get("InferenceSamplesPerSecond", 0),
-    "MemoryProfile"         : memoryProfile
-  }
-  # Return the comprehensive efficiency metrics dictionary.
-  return efficiencyMetrics
-
-
-# Define the main execution block.
 if (__name__ == "__main__"):
+  # Update the matplotlib settings for consistent plotting.
   UpdateMatplotlibSettings()
 
   # Define the list of models to profile.
   modelNames = ["StandardViT", "EVA02", "ConvNeXtV2"]
-  # Define the accuracy for each model (replace with actual evaluation).
+
+  # Define the accuracy for each model to be used in the Pareto front.
   modelAccuracies = {
     "StandardViT": 0.9656,
     "EVA02"      : 0.9943,
     "ConvNeXtV2" : 0.9961
   }
-  # Define the number of classes.
+
+  # Define the number of classes for the model output.
   numClasses = 8
-  # Define the device to use.
+
+  # Define the device to use for computation.
   device = "cuda" if (torch.cuda.is_available()) else "cpu"
-  # Define the image size.
+
+  # Define the input image size for the models.
   imageSize = 224
-  # Define the output directory.
+
+  # Define the output directory for saving results and plots.
   outputDirectory = "./Experiments/EfficiencyProfiling"
-  # Initialize a list to store the results.
+
+  # Initialize a list to store the profiling results.
   profilingResults = []
-  # Create a dummy input tensor for profiling.
+
+  # Create a dummy input tensor for profiling the models.
   dummyInput = torch.randn(1, 3, imageSize, imageSize)
-  # Iterate through each model name.
+
+  # Iterate through each model name in the list.
   for modelName in modelNames:
-    # Build the model.
+    # Build the model using the predefined pipeline function.
     model, _ = BuildViTModel(modelName, numClasses, device, imageSize)
-    # Profile the model efficiency using HMB profiler.
-    metrics = ProfileModelEfficiency(model, dummyInput, device)
-    # Add the model name to the metrics.
+
+    # Profile the model efficiency using the HMB profiler.
+    metrics = ProfileModelEfficiency(
+      model,
+      dummyInput,
+      device,
+      optimizerType="Adam",
+      isTransformer=False,
+      checkpointing=False,
+      deviceFLOPSGFLOPS=None,
+      datasetSize=None,
+      trainingMultiplier=3.0,
+      runMicroBenchmark=True
+    )
+
+    # Add the model name to the metrics dictionary.
     metrics["ModelName"] = modelName
-    # Add a dummy accuracy for the Pareto front (replace with actual evaluation).
+
+    # Add the model accuracy to the metrics dictionary.
     metrics["Accuracy"] = modelAccuracies.get(modelName, 0.85)
-    # Append the metrics to the results list.
+
+    # Append the metrics dictionary to the results list.
     profilingResults.append(metrics)
-    # Print the profiling status.
+
+    # Print the profiling status for the current model.
     print("Profiled " + modelName + ":")
+
+    # Print the total parameter count.
     print("  Parameters: " + str(metrics["ParameterCount"]))
+
+    # Print the average latency in milliseconds.
     print("  Latency: " + str(round(metrics["AverageLatencyMs"], 4)) + " ms")
+
+    # Print the peak inference memory in megabytes.
     print("  Inference Memory: " + str(round(metrics["PeakMemoryMb"], 2)) + " MB")
+
+    # Print the total training memory in megabytes.
     print("  Training Memory: " + str(round(metrics["TrainingMemoryMb"], 2)) + " MB")
+
+    # Print the total GFLOPs.
     print("  GFLOPs: " + str(round(metrics["TotalGFLOPs"], 4)))
-    print("  Throughput: " + str(
-      round(metrics["InferenceSamplesPerSec"], 2) if metrics["InferenceSamplesPerSec"] else "N/A") + " samples/sec")
-  # Convert the results list to a pandas DataFrame.
+
+    # Calculate and print the inference throughput safely.
+    throughputValue = metrics["InferenceSamplesPerSec"]
+    throughputString = str(round(throughputValue, 2)) if (throughputValue) else "N/A"
+    print("  Throughput: " + throughputString + " samples/sec")
+
+  # Convert the results list to a pandas DataFrame for analysis.
   resultsDataFrame = pandas.DataFrame(profilingResults)
 
-  # Create the efficiency plotter instance.
+  # Create the efficiency plotter instance with the results.
   plotter = EfficiencyPlotter(resultsDataFrame, outputDirectory)
 
-  # Generate all visualizations.
+  # Generate the multi-metric Pareto front visualization.
   plotter.PlotParetoFrontMultiMetric()
+
+  # Generate the parameter count comparison visualization.
   plotter.PlotParameterCount()
+
+  # Generate the latency comparison visualization.
   plotter.PlatencyComparison()
+
+  # Generate the stacked memory breakdown visualization.
   plotter.PlotMemoryBreakdownStacked()
+
+  # Generate the GFLOPs comparison visualization.
   plotter.PlotGFLOPsComparison()
+
+  # Generate the throughput comparison visualization.
   plotter.PlotThroughputComparison()
+
+  # Generate the memory efficiency visualization.
   plotter.PlotMemoryEfficiency()
+
+  # Generate the training versus inference memory visualization.
   plotter.PlotTrainingVsInferenceMemory()
+
+  # Generate the metrics correlation heatmap visualization.
   plotter.PlotMetricsCorrelationHeatmap()
+
+  # Generate the top layers FLOPs visualization.
   plotter.PlotTopLayersFlops()
+
+  # Generate the efficiency summary dashboard visualization.
   plotter.PlotEfficiencySummaryDashboard()
 
-  # Save detailed profiles to JSON for each model.
+  # Create the output path object for saving files.
   outputPath = Path(outputDirectory)
+
+  # Create the output directory if it does not already exist.
   outputPath.mkdir(parents=True, exist_ok=True)
+
+  # Iterate through each row in the results DataFrame.
   for _, row in resultsDataFrame.iterrows():
+    # Create a profiler instance to handle JSON saving.
     profiler = PyTorchModelMemoryProfiler(
       model=None,
       inputShape=(3, imageSize, imageSize),
@@ -125,5 +145,12 @@ if (__name__ == "__main__"):
       precision="FP32",
       device=device
     )
-    profiler.SaveProfileToJSON(row["MemoryProfile"], outputPath / (row["ModelName"] + "_Profile.json"))
+
+    # Define the CamelCase file name for the detailed profile.
+    profileFileName = row["ModelName"] + "DetailedProfile.json"
+
+    # Save the detailed memory profile to a JSON file.
+    profiler.SaveProfileToJSON(row["MemoryProfile"], outputPath / profileFileName)
+
+  # Print the completion message with the output path.
   print("Detailed profiles saved to " + str(outputPath))

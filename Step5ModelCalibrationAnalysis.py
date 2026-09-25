@@ -2,7 +2,10 @@ import torch
 import numpy
 from pathlib import Path
 from HMB.PyTorchHelper import LoadModel
+from HMB.Initializations import UpdateMatplotlibSettings
 from HMB.PerformanceMetrics import ComputeECEPlotReliability
+from HMB.PyTorchClassificationModelsZoo import BuildViTModel
+from Step1PyTorchPretrainedViTPipeline import PyTorchFolderBasedDataPipeline
 
 
 # Define the function to run calibration analysis on a dataset.
@@ -18,7 +21,7 @@ def RunCalibrationAnalysis(model, dataLoader, device, outputDirectory):
   # Disable gradient computation.
   with torch.no_grad():
     # Iterate over the data loader.
-    for inputs, labels, _ in dataLoader:
+    for inputs, labels in dataLoader:
       # Move inputs to the specified device.
       inputs = inputs.to(device)
       # Move labels to the specified device.
@@ -57,7 +60,7 @@ def RunCalibrationAnalysis(model, dataLoader, device, outputDirectory):
     save=True,
     fileName=str(outputPath / "ReliabilityDiagram.pdf"),
     display=False,
-    dpi=300
+    dpi=720
   )
   # Print the ECE value.
   print(f"Expected Calibration Error: {ece:.4f}")
@@ -65,10 +68,9 @@ def RunCalibrationAnalysis(model, dataLoader, device, outputDirectory):
   print(f"Calibration analysis complete. Results saved to {outputPath}")
 
 
-# Define the main execution block.
 if (__name__ == "__main__"):
-  # Import the pipeline module.
-  from Step1PyTorchPretrainedViTPipeline import BuildViTModel, PyTorchFolderBasedDataPipeline
+  # Update the matplotlib settings for consistent plotting.
+  UpdateMatplotlibSettings()
 
   # Define the dataset directory.
   datasetDirectory = "./data"
@@ -77,7 +79,7 @@ if (__name__ == "__main__"):
   # Define the output directory.
   outputDirectory = "./Experiments/Calibration"
   # Define the model name.
-  modelName = "EVA02"
+  modelName = "ConvNeXtV2"
 
   # Determine the device to use.
   device = "cuda" if torch.cuda.is_available() else "cpu"

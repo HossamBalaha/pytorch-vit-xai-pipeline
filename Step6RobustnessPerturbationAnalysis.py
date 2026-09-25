@@ -1,11 +1,11 @@
-import os
-import torch
-import numpy
+import os, torch, numpy
 from PIL import Image
 from pathlib import Path
 from torchvision import transforms
+from HMB.Initializations import UpdateMatplotlibSettings
+from HMB.PyTorchClassificationModelsZoo import BuildViTModel
 from HMB.PyTorchHelper import LoadModel, EvaluateModelOnPerturbations
-from Step1PyTorchPretrainedViTPipeline import BuildViTModel, PyTorchFolderBasedDataPipeline
+from Step1PyTorchPretrainedViTPipeline import PyTorchFolderBasedDataPipeline
 
 
 # Define the function to create a prediction callable for the HMB evaluator.
@@ -107,16 +107,18 @@ def RunRobustnessAnalysis(model, datasetDirectory, outputDirectory, imageSize, c
     preprocessFn=None,
     subset="test",
     eps=1e-10,
-    dpi=300,
+    dpi=720,
   )
   # Print the completion message.
   print("Robustness analysis complete. Results saved to " + str(outputPath))
-  # Return the results dictionary.
+  # Return the results' dictionary.
   return robustnessResults
 
 
-# Define the main execution block.
 if (__name__ == "__main__"):
+  # Update the matplotlib settings for consistent plotting.
+  UpdateMatplotlibSettings()
+
   # Define the dataset directory.
   datasetDirectory = "./data"
   # Define the model checkpoint path.
@@ -125,7 +127,7 @@ if (__name__ == "__main__"):
   outputDirectory = "./Experiments/Robustness"
 
   # Define the model name.
-  modelName = "EVA02"
+  modelName = "ConvNeXtV2"
   # Determine the device to use.
   device = "cuda" if (torch.cuda.is_available()) else "cpu"
   # Define the image size.

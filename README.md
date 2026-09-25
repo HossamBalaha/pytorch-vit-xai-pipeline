@@ -3,6 +3,8 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white" alt="Python Version">
   <img src="https://img.shields.io/badge/PyTorch-2.0%2B-EE4C2C?logo=pytorch&logoColor=white" alt="PyTorch Version">
+  <img src="https://img.shields.io/badge/CUDA-GPU%20Accelerated-76B900?logo=nvidia&logoColor=white" alt="CUDA Accelerated">
+  <img src="https://img.shields.io/badge/HMB%20Helpers-Integrated-2D963D?logo=python&logoColor=white" alt="HMB Helpers">
   <img src="https://img.shields.io/badge/License-Academic%20and%20Non--Commercial-orange" alt="License">
 </p>
 
@@ -28,7 +30,7 @@
 - [Execution Instructions](#execution-instructions)
 - [Experimental Results](#experimental-results)
 - [Advanced Features & Architectures](#advanced-features--architectures)
-- [Advanced Model Evaluation & Journal-Ready Analysis](#advanced-model-evaluation--journal-ready-analysis)
+- [Advanced Model Evaluation & Analysis](#advanced-model-evaluation--analysis)
 - [Output Structure & Interpretation](#output-structure--interpretation)
 - [Example Console Output](#example-console-output)
 - [Explainability & XAI Features](#explainability--xai-features)
@@ -39,19 +41,21 @@
 ## Introduction
 
 This repository provides a robust, production-grade PyTorch pipeline for image classification utilizing Vision
-Transformers (ViT), hybrid classical-quantum networks, and other state-of-the-art architectures. It is specifically
-designed to accommodate students and researchers, offering an accessible yet highly configurable framework. The pipeline
-supports automatic dataset splitting, advanced data preprocessing (including histopathology-specific augmentations),
-multiple cutting-edge models, modern optimizers, comprehensive evaluation metrics, result aggregation utilities,
-integrated Explainable AI (XAI) capabilities, and native Quantum Transfer Learning via PennyLane. A standout feature of
-this pipeline is the native integration of a Topological Wasserstein Loss, designed to enforce
-meaningful, linearly separable class clustering in the latent space, making it exceptionally well-suited for complex
-medical imaging tasks.
+Transformers (ViT), hybrid classical-quantum networks, and other state-of-the-art architectures, including
+Kolmogorov-Arnold Networks (KANs), Neural Ordinary Differential Equations (Neural ODEs), Spiking Neural Networks (SNNs),
+Hypernetworks, Liquid State Space Vision Transformers (LiquidSSM-ViT), Test-Time Evolving Transformers (TTT-ViT), Tensor
+Network Entangled Vision Transformers (TNE-ViT), and Diffusion-Prior Energy Vision Transformers (DiffEnergy-ViT).
+It is specifically designed to accommodate students and researchers, offering an accessible yet
+highly configurable framework. The pipeline supports automatic dataset splitting, advanced data preprocessing (including
+histopathology-specific augmentations), multiple cutting-edge models, modern optimizers, comprehensive evaluation
+metrics, result aggregation utilities, integrated Explainable AI (XAI) capabilities, and native Quantum Transfer
+Learning via PennyLane. The pipeline also includes experimental support for Topological Wasserstein Loss to enforce
+meaningful, linearly separable class clustering in the latent space. (Note: Full integration requires custom criterion
+wrapping, as the standard HMB Training Pipeline currently falls back to standard classification loss for this feature.)
 
 ## Author Information
 
 - **Author:** Hossam Magdy Balaha
-- **Email:** hmbala01@louisville.edu
 - **Online CV:** [https://hossambalaha.github.io/](https://hossambalaha.github.io/)
 
 ## Conceptual Foundations
@@ -210,6 +214,19 @@ UseAugmentation: true
 Device: "cuda"
 Patience: 25
 
+# --- Pipeline Control Parameters ---
+# Criterion to judge the best model for checkpointing and early stopping ("val_loss", "val_accuracy", "both").
+JudgeBy: "val_accuracy"
+
+# Save a checkpoint every N epochs. Set to null to disable periodic saving.
+SaveEvery: null
+
+# Maximum gradient norm for clipping. Set to null to disable gradient clipping.
+MaxGradNorm: null
+
+# Whether to resume training from the last checkpoint if it exists.
+ResumeFromCheckpoint: false
+
 # --- Advanced Training Techniques ---
 UseAmp: true
 AccumulationSteps: 1
@@ -249,6 +266,17 @@ Seeds: [ 42, 43, 44, 45, 46 ]
 - `Epsilon`, `LambdaTopo`, `LambdaContrastive`: Hyperparameters controlling the entropic regularization and weighting
   factors for the topological spatial penalty and contrastive loss.
 - `Seeds`: A list of random seeds to ensure statistical significance through multi-trial execution.
+- `UsePretrainedCustomModels`: Enables partial ImageNet weight transfer for custom from-scratch architectures (e.g.,
+  KAN, Neural ODE, Spiking).
+- `PretrainedModelName`: Specifies the `timm` model name (e.g., `vit_base_patch16_224`) to use as the source for
+  pretrained weights when `UsePretrainedCustomModels` is enabled.
+- `JudgeBy`: Criterion used to determine the "best" model for checkpointing and early stopping (e.g., `"val_loss"`,
+  `"val_accuracy"`, or `"both"`).
+- `SaveEvery`: Saves a model checkpoint every N epochs. Set to `null` to disable periodic saving and rely only on the
+  best-model checkpoint.
+- `MaxGradNorm`: Maximum gradient norm for gradient clipping to prevent exploding gradients. Set to `null` to disable.
+- `ResumeFromCheckpoint`: If `true`, automatically resumes training from the latest saved checkpoint in the output
+  directory.
 
 ## Execution Instructions
 
@@ -280,10 +308,10 @@ python Step2ACollectResults.py
 python Step2BAggregateMultiTrialResults.py
 ```
 
-### Step 4: Execute Advanced Journal-Ready Analysis (Optional but Recommended)
+### Step 4: Execute Advanced Model Analysis (Optional but Recommended)
 
 After the main pipeline completes, you can run the dedicated analysis scripts to generate supplementary materials
-required for top-tier publications:
+useful for advanced research and detailed reporting:
 
 ```bash
 # 1. Inference Efficiency Profiling
@@ -374,9 +402,43 @@ The following table illustrates the classification distribution across the 6 cat
 - `ConvNeXtLargeCLIP`: ConvNeXt Large model with robust CLIP (LAION-2B) pre-training.
 - `SwinTransformerLarge384`: Swin Large model optimized for 384x384 high-resolution input.
 - `EfficientNetV2Large`: Highly efficient, robust feature extraction model.
-- `QuantumResNet`: A hybrid classical-quantum architecture leveraging a pre-trained ResNet152 feature extractor, coupled
+- `QuantumResNet`: A hybrid classical-quantum architecture utilizing a pre-trained ResNet152 feature extractor, coupled
   with a custom dimensionality reduction block and a PennyLane variational quantum circuit for advanced latent space
   classification.
+- `VisionKANModel`: Kolmogorov-Arnold Network-based Vision Transformer replacing standard MLPs with learnable KAN layers
+  for superior interpretability and parameter efficiency.
+- `NeuralODEViTModel`: Continuous-depth Vision Transformer modeling hidden state dynamics via Neural Ordinary
+  Differential Equations for adaptive computation and memory efficiency.
+- `SpikingViTModel`: Spiking Vision Transformer incorporating biologically plausible Leaky Integrate-and-Fire neurons
+  for ultra-low power consumption and event-driven processing.
+- `HypernetworkViTModel`: Hypernetwork-based Vision Transformer utilizing a secondary network to dynamically generate
+  primary model weights for extreme compression and rapid adaptation.
+- `LiquidSSMViTModel`: Liquid State Space Vision Transformer merging Liquid Time-Constant ODEs with linear-time State
+  Space Models for continuous-time, adaptive receptive fields.
+- `TestTimeEvolvingViTModel`: Test-Time Evolving Transformer incorporating a self-supervised auxiliary head for
+  continuous feature adaptation during inference.
+- `TensorNetworkEntangledViTModel`: Tensor Network Entangled Vision Transformer replacing standard attention with Matrix
+  Product States for exponential parameter compression.
+- `DiffusionPriorEnergyViTModel`: Diffusion-Prior Energy Vision Transformer utilizing Energy-Based Models for
+  unparalleled out-of-distribution detection.
+- `FractalResonanceViTModel`: Fractal-Resonance Vision Transformer utilizing harmonic resonance and fractal
+  dimensionality for multi-scale feature extraction without standard convolutions.
+- `TopologicalQuantumViTModel`: Topological Quantum Vision Transformer computing attention weights based on persistent
+  homology and Betti numbers for extreme robustness to spatial deformations.
+- `HolographicInterferenceViTModel`: Holographic Interference Vision Transformer encoding spatial features as phase and
+  amplitude holograms for ultra-dense parallel processing.
+- `NeuromorphicLiquidStateViTModel`: Neuromorphic Liquid State Machine combining reservoir computing with spiking
+  dynamics for extreme one-shot adaptation and temporal-spatial continuity.
+
+**Pretrained Weight Transfer for Custom Models:** All custom from-scratch architectures
+(VisionKAN, NeuralODE, Spiking, Hypernetwork, LiquidSSM, TestTimeEvolving,
+TensorNetworkEntangled, DiffusionPriorEnergy, FractalResonance, TopologicalQuantum,
+HolographicInterference, NeuromorphicLiquidState) support partial ImageNet pretrained
+weight transfer. When enabled, the patch embedding, class token, positional encoding,
+layer normalization, and classification head are initialized from a pretrained ViT-Base
+model, while the custom architectural blocks remain randomly initialized. This provides
+a significant performance boost on small-to-medium datasets by utilizing rich visual
+priors learned from 1.2 million ImageNet images.
 
 ### Advanced Optimizers
 
@@ -397,11 +459,10 @@ The pipeline automatically calculates and exports:
 - Macro, Micro, and Weighted averages for: Precision, Recall, F1, Accuracy, Specificity, Balanced Accuracy (BAC),
   Matthews Correlation Coefficient (MCC), Youden's Index, and Yule's Q.
 
-## Advanced Model Evaluation & Journal-Ready Analysis
+## Advanced Model Evaluation & Analysis
 
-To meet the rigorous standards of top-tier medical imaging and computer vision journals (e.g., *IEEE TMI*, *MedIA*,
-*MICCAI*), the pipeline includes dedicated scripts for comprehensive model evaluation beyond standard accuracy. These
-steps ensure statistical rigor, robustness, and deep interpretability.
+The pipeline includes dedicated scripts for comprehensive model evaluation beyond standard accuracy. These steps ensure
+statistical rigor, robustness, and deep interpretability for research and production environments.
 
 ### 1. Inference Efficiency Profiling (`Step4InferenceEfficiencyProfiling.py`)
 
@@ -409,48 +470,61 @@ steps ensure statistical rigor, robustness, and deep interpretability.
   efficiency, a mandatory metric for deployment feasibility.
 - **Output:** Multi-metric Pareto fronts, parameter counts, latency comparisons, stacked memory breakdowns, GFLOPs,
   throughput, and efficiency summary dashboards.
-- **Usage:** Profiles specified models using a dummy input and the `HMB.PyTorchModelMemoryProfiler` to generate
-  publication-ready efficiency visualizations and detailed JSON profiles.
+- **Usage:** Profiles specified models using a dummy input by utilizing the modular `ProfileModelEfficiency` function
+  from `HMB.Examples.ModelsInferenceEfficiencyProfiling`. It then utilizes `HMB.PyTorchModelMemoryProfiler` and
+  `HMB.PlotsHelper.EfficiencyPlotter` to generate high-quality efficiency visualizations and detailed CamelCase
+  JSON profiles (e.g., `ModelNameDetailedProfile.json`).
 
 ### 2. Model Calibration Analysis (`Step5ModelCalibrationAnalysis.py`)
 
 - **Purpose:** Evaluates whether the model's confidence aligns with its actual accuracy, a critical requirement for safe
   clinical deployment.
-- **Output:** Expected Calibration Error (ECE) metric and publication-ready Reliability Diagrams (PDF/PNG).
-- **Usage:** Automatically runs on the test set to detect overconfidence or underconfidence in predictions.
+- **Output:** Expected Calibration Error (ECE) metric (printed to the console) and a high-quality Reliability
+  Diagram (`ReliabilityDiagram.pdf`).
+- **Usage:** Automatically evaluates the test set using `HMB.PerformanceMetrics.ComputeECEPlotReliability` to detect
+  overconfidence or underconfidence in predictions by binning probabilities and visualizing the calibration curve.
 
 ### 3. Robustness & Perturbation Analysis (`Step6RobustnessPerturbationAnalysis.py`)
 
-- **Purpose:** Quantifies model resilience against real-world imaging degradations (e.g., Gaussian noise, JPEG
-  compression, brightness shifts, contrast variations).
-- **Output:** Mean Corruption Error (mCE), accuracy heatmaps across severity levels, and ECE heatmaps under
-  perturbation.
-- **Usage:** Executes controlled corruptions on the test set to prove the model does not catastrophically fail in
-  degraded environments.
+- **Purpose:** Quantifies model resilience against real-world imaging degradations to ensure safe and reliable clinical
+  deployment.
+- **Output:** Mean Corruption Error (mCE) metrics, high-resolution accuracy heatmaps across severity levels, and
+  Expected Calibration Error (ECE) heatmaps under perturbation (saved as both `.png` and `.pdf` for detailed reporting).
+- **Usage:** Executes controlled corruptions (Gaussian noise, brightness shifts, JPEG compression, speckle noise, and
+  contrast variations) across 5 severity levels on a test subset. It utilizes a robust prediction callable that
+  seamlessly handles diverse input formats (Tensor, NumPy, PIL) via
+  `HMB.PyTorchHelper.EvaluateModelOnPerturbations`.
 
 ### 4. Cross-Experiment Statistical Analysis (`Step7CrossExperimentStatisticalAnalysis.py`)
 
-- **Purpose:** Provides mathematical proof that performance differences between models or loss functions are
-  statistically significant, not due to random chance.
-- **Output:** Raincloud plots, Boxplots, Violin plots, and pairwise t-tests with Cohen's *d* effect sizes across
-  multiple random seeds.
-- **Usage:** Aggregates metrics from multiple seed directories (e.g., Seed-42 to Seed-46) to validate reproducibility
-  and significance.
+- **Purpose:** Provides mathematical proof that performance differences across multiple random seeds are statistically
+  significant, rather than due to random chance.
+- **Output:** High-quality Raincloud, Box, and Violin plots (generated via
+  `HMB.StatisticalAnalysisHelper.PlotMetrics`),
+  alongside console-printed pairwise t-test results (comparing the baseline seed to subsequent seeds) with Cohen's *d*
+  effect sizes.
+- **Usage:** Aggregates a specified metric (e.g., `WeightedAccuracy`) from `TestEvaluationMetrics.json` files across all
+  seed directories to validate reproducibility and statistical significance.
 
 ### 5. Representation Learning & Latent Space Analysis (`Step8RepresentationLearningEmbeddings.py`)
 
-- **Purpose:** Proves that the model (especially when using Topological Wasserstein Loss) learns meaningful, linearly
-  separable class clusters in the latent space.
-- **Output:** 2D/3D t-SNE and UMAP visualizations, Silhouette scores, Davies-Bouldin indices, Calinski-Harabasz scores,
-  and misclassification-highlighted embeddings.
-- **Usage:** Extracts penultimate layer embeddings and utilizes `HMB.ExplainabilityHelper` to generate interactive
-  Plotly HTML and static publication-ready figures.
+- **Purpose:** Proves that the model learns meaningful, linearly separable class clusters in the latent space, providing
+  deep insights into feature representation and model decision boundaries.
+- **Output:** `Embeddings.pkl` (raw feature vectors), `Embeddings_Metadata.csv` (true labels, predictions, and
+  filenames), and comprehensive `tSNE_Analysis/` and `UMAP_Analysis/` directories. These directories contain interactive
+  Plotly HTML files, static high-quality figures, cluster quality metrics (Silhouette, Davies-Bouldin,
+  Calinski-Harabasz), misclassification highlighting, and centroid annotations.
+- **Usage:** Extracts penultimate layer embeddings (automatically handling both ViT CLS tokens and CNN spatial
+  averaging)   and utilizes `HMB.ExplainabilityHelper.TSNEFeaturesExplainability` and `UMAPFeaturesExplainability` to
+  generate the advanced visualizations and statistical metrics.
 
 ### 6. Minority Class Precision-Recall Curves (`Step9MinorityClassPrecisionRecallCurves.py`)
 
 - **Purpose:** Addresses class imbalance by evaluating the Area Under the Precision-Recall Curve (AUPRC) for
   underrepresented classes, which ROC-AUC can be overly optimistic about.
-- **Output:** Highlighted Precision-Recall Curves (PRC) emphasizing minority classes (e.g., rare tumor grades).
+- **Output:** Highlighted Precision-Recall Curves (PRC) emphasizing minority classes (saved as both `.pdf` and `.png`),
+  alongside console-printed overall Weighted and Macro F1 scores computed via
+  `HMB.PerformanceMetrics.CalculatePerformanceMetrics`.
 - **Usage:** Parses the `DetailedPredictions.csv` to compute and visualize per-class AUPRC, ensuring the model does not
   achieve high accuracy by simply ignoring rare classes.
 
@@ -473,8 +547,7 @@ Results/
  │   │   │   ├── TestDetailedPredictions.csv
  │   │   │   └── TestEvaluationMetrics.json
  │   │   ├── Calibration/
- │   │   │   ├── ReliabilityDiagram.pdf
- │   │   │   └── CalibrationMetrics.json
+ │   │   │   └── ReliabilityDiagram.pdf
  │   │   ├── Robustness/
  │   │   │   ├── RobustnessReport.json
  │   │   │   ├── AccuracyHeatmap.png
@@ -488,7 +561,7 @@ Results/
  │   │   │   ├── PrecisionRecallCurves.pdf
  │   │   │   └── PrecisionRecallCurves.png
  │   │   ├── EfficiencyProfiling/        
- │   │   │   ├── EVA02_Profile.json
+ │   │   │   ├── EVA02DetailedProfile.json
  │   │   │   └── EfficiencyDashboard.png
  │   │   ├── BestModel.pt                # The best model weights
  │   │   ├── ClassHistograms.png         # Class distribution across splits
@@ -497,7 +570,7 @@ Results/
  │   └── StatisticalAnalysis/            # Aggregated across all seeds
  │       ├── WeightedAccuracy_Raincloud.pdf
  │       ├── WeightedAccuracy_Boxplot.pdf
- │       └── StatisticalTests.json
+ │       └── WeightedAccuracy_Violin.pdf
  ├── ValResults.csv                      
  ├── TestResults.csv                     
  ├── AggregatedResultsSummary.csv        
@@ -511,8 +584,8 @@ Results/
   error analysis.
 - `EvaluationMetrics.json`: A structured JSON containing all calculated mathematical metrics.
 - `TrainingHistory.png`: Visual plots of training and validation loss/accuracy over epochs.
-- `AggregatedResultsSummary.csv`: Consolidated mean ± standard deviation metrics across all random seeds for manuscript
-  tables.
+- `AggregatedResultsSummary.csv`: Consolidated mean ± standard deviation metrics across all random seeds for detailed
+  reporting and statistical analysis.
 
 ## Example Console Output
 
@@ -605,8 +678,8 @@ This script generates a **single, combined side-by-side figure** for each image,
 the XAI masks from all selected methods in a single grid row.
 
 **When to Use:**  
-Use this script when you need to visually compare how different XAI methods highlight the exact same image. It is highly
-recommended for generating publication-ready figures, presentation slides, or detailed case studies where direct
+Use this script when you need to visually compare how different XAI methods highlight the exact same image.
+It is highly recommended for generating high-quality figures, presentation slides, or detailed case studies where direct
 method-to-method comparison is required.
 
 **How to Use:**

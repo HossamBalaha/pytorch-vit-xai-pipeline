@@ -1,11 +1,9 @@
-import os
-import json
-import numpy
-import pandas
+import os, json, numpy, pandas
 from pathlib import Path
 from scipy import stats
-from HMB.StatisticalAnalysisHelper import PlotMetrics
 from HMB.Utils import fprint
+from HMB.StatisticalAnalysisHelper import PlotMetrics
+from HMB.Initializations import UpdateMatplotlibSettings
 
 
 # Define the function to aggregate metrics from multiple seeds.
@@ -85,18 +83,22 @@ def PerformStatisticalAnalysis(aggregatedMetrics, outputDirectory, metricName):
         cohensD = 0.0
       # Print the statistical results.
       fprint(
-        "Comparison: " + seedNames[0] + " vs " + seedNames[i] + " | p-value: " + str(pValue) + " | Cohen's d: " + str(
-          cohensD))
+        "Comparison: " + seedNames[0] + " vs " + seedNames[i] +
+        " | p-value: " + str(pValue) + " | Cohen's d: " + str(cohensD)
+      )
   # Print the completion message.
   fprint("Statistical analysis complete. Results saved to " + str(outputPath))
 
 
 # Define the main execution block.
 if (__name__ == "__main__"):
+  # Update the matplotlib settings for consistent plotting.
+  UpdateMatplotlibSettings()
   # Define the base experiments directory containing seed folders.
   experimentsDirectory = "./Experiments/Exp-EVA02-AdamW-16-CrossEntropy"
   # Define the output directory for statistical analysis.
   outputDirectory = "./Experiments/StatisticalAnalysis"
+
   # Define the metric key to analyze.
   metricKey = "WeightedAccuracy"
   # Aggregate the metrics from all seed directories.
