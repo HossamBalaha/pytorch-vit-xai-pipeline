@@ -12,6 +12,7 @@ from HMB.PyTorchHelper import LoadModel
 from HMB.Initializations import IMAGE_SUFFIXES
 from HMB.ExplainabilityHelper import CAMExplainerPyTorch
 
+
 def RunAdvancedXaiOnDataset(
   model: torch.nn.Module,
   datasetPath: str,
@@ -224,7 +225,7 @@ if __name__ == "__main__":
   }
 
   # Define the model name.
-  modelName = "EVA02"
+  modelName = "ConvNeXtV2"
 
   # Determine the device to use.
   device = "cuda" if torch.cuda.is_available() else "cpu"

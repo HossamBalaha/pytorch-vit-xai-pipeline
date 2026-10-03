@@ -9,7 +9,7 @@
 DataDir: "/path/to/your/dataset"
 
 # Directory where results, models, and logs will be saved.
-OutputDir: "/path/to/your/Experiments/Exp-XXX"
+OutputDir: "/path/to/your/output"
 
 # --- Model Configuration ---
 # Pass a list to run multiple models. The script will loop through all combinations.

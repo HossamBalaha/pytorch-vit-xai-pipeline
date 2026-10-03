@@ -199,16 +199,15 @@ if (__name__ == "__main__"):
   UpdateMatplotlibSettings()
   # Define the dataset directory.
   datasetDirectory = "./data"
-
   # Define the model checkpoint path.
   modelCheckpointPath = "./Experiments/BestModel.pt"
-
   # Define the output directory.
   outputDirectory = "./Experiments/Embeddings"
+
   # Define the model name.
   modelName = "ConvNeXtV2"
   # Define the number of classes.
-  numClasses = 7
+  numClasses = 3
   # Determine the device to use.
   device = "cuda" if (torch.cuda.is_available()) else "cpu"
   # Define the image size.

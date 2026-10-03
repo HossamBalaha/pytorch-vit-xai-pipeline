@@ -98,7 +98,7 @@ if (__name__ == "__main__"):
   datasetPath = r"/path/to/your/dataset"  # Update this path to your dataset location.
   splitName = "test"  # Specify the dataset split to use (e.g., "train", "val", "test").
   modelCheckpointPath = r"/path/to/your/modelCheckpoint.pth"  # Update this path to your model checkpoint.
-  outputDir = Path(r"/path/to/output/directory/xai")  # Update this path to your desired output directory.
+  outputDirectory = Path(r"/path/to/output/directory/xai")  # Update this path to your desired output directory.
 
   modelName = "SwinTransformerV2"
   device = "cuda" if (torch.cuda.is_available()) else "cpu"
@@ -124,10 +124,10 @@ if (__name__ == "__main__"):
   # Set the model to evaluation mode.
   model.eval()
 
-  if (not outputDir.exists()):
+  if (not outputDirectory.exists()):
     # Create the output directory if it does not exist.
-    outputDir.mkdir(parents=True, exist_ok=True)
-    fprint(f"Created output directory: {outputDir}.")
+    outputDirectory.mkdir(parents=True, exist_ok=True)
+    fprint(f"Created output directory: {outputDirectory}.")
 
   # Run the PyTorch CAM explainability pipeline on the dataset using the timm model.
   fprint("Running PyTorch CAM explainability pipeline...")
@@ -135,7 +135,7 @@ if (__name__ == "__main__"):
     timmModel=model,
     datasetPath=datasetPath,
     splitName=splitName,
-    outputDirectory=outputDir,
+    outputDirectory=outputDirectory,
     classNames=classNamesMapping,
     imageSize=effectiveImageSize,
     maxImagesPerClass=maxImagesPerClass,
